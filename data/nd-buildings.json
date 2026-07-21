@@ -1,20 +1,18 @@
 {
-  "_comment": "Source of truth for ND building data. Hand-curated. 'osm' is the OpenStreetMap element (in data/footprints-raw.json) providing the footprint polygon; 'point' [lat,lng] is used when no footprint could be confidently matched. 'contents' transcribed from the official Fremantle Campus Map PDF (10 Sept 2015 edition, reference/fremantle-campus-map-2015.pdf). 'confidence' reflects how sure the ND-number-to-footprint match is; low-confidence entries need on-the-ground verification.",
+  "_comment": "Source of truth for ND building data. Hand-curated. 'osm' is the OpenStreetMap element (in data/footprints-raw.json) providing the footprint polygon; 'point' [lat,lng] is used when no footprint could be confidently matched. 'contents' transcribed from the official Fremantle Campus Map (November 2025 edition, reference/fremantle-campus-map-2025-11.pdf; ND6572). Where the official legend leaves a building unnamed (e.g. ND13, ND33), 'name' uses its most prominent occupant or historic building name, with a note. 'confidence' reflects how sure the ND-number-to-footprint match is; low-confidence entries need on-the-ground verification.",
   "buildings": [
     {
       "ref": "ND1",
-      "name": "Foley Hall & Chancellery",
+      "name": "Chancellery",
       "address": "17–19 Mouat Street",
       "osm": "way/122218677",
       "confidence": "high",
       "contents": [
         "Foley Hall",
         "Santa Maria Lecture Theatre",
-        "Office of Marketing & Communications",
-        "Quality Management Office",
-        "Staffing Office",
-        "Office of University Relations",
-        "Chancellery (first floor): Vice Chancellery, Chancellors' Room, Helen Lombard Room"
+        "Student Administration & Fees",
+        "Student study space",
+        "Chancellery (level 2)"
       ]
     },
     {
@@ -23,7 +21,7 @@
       "address": "Mouat Street",
       "osm": null,
       "point": [-32.05635, 115.74345],
-      "confidence": "low",
+      "confidence": "medium",
       "kind": "courtyard",
       "contents": ["Courtyard"]
     },
@@ -32,13 +30,12 @@
       "name": "Prindiville Hall",
       "address": "25 Mouat Street",
       "osm": "way/122218678",
-      "confidence": "medium",
-      "note": "OSM names this footprint Bateman's Warehouse; Prindiville Hall occupies the former Bateman plumbing warehouse.",
+      "confidence": "high",
+      "note": "OSM names this footprint Bateman's Warehouse; position matches the official map (grid D3).",
       "contents": [
-        "Communications Laboratory",
         "Performing Arts Centre",
-        "Student Association Offices",
-        "Student Common Room"
+        "Student Association offices",
+        "Student common room & kitchen"
       ]
     },
     {
@@ -47,15 +44,7 @@
       "address": "Corner Cliff & Croke Streets",
       "osm": "way/163682359",
       "confidence": "high",
-      "contents": ["Classrooms"]
-    },
-    {
-      "ref": "ND5",
-      "name": "P&O Hotel",
-      "address": "Corner High & Mouat Streets",
-      "osm": "relation/17256639",
-      "confidence": "high",
-      "contents": ["Classrooms", "Student Residence"]
+      "contents": ["Classrooms & lecture theatre"]
     },
     {
       "ref": "ND6",
@@ -63,21 +52,18 @@
       "address": "26 Mouat Street",
       "osm": "way/164418323",
       "confidence": "high",
-      "contents": ["First Aid Room", "Study Abroad Office (first floor)"]
+      "contents": ["First Aid room", "End-of-trip facilities"]
     },
     {
       "ref": "ND7",
-      "name": "Student Centre",
+      "name": "Peter Prendiville Study Centre",
       "address": "32 Mouat Street",
       "osm": "way/1051032222",
       "confidence": "high",
       "contents": [
-        "Student Administration & Fees",
-        "Student Services",
-        "Careers Office",
-        "Notre Dame Volunteer Network",
-        "Mail Room",
-        "First floor: University Reporting & Statistics, Campus Registrar, Library Staff"
+        "Parent room",
+        "Student study and collaboration",
+        "Classrooms (level 2)"
       ]
     },
     {
@@ -91,24 +77,23 @@
     },
     {
       "ref": "ND9",
-      "name": "Student Services",
+      "name": "Chaplaincy & Manjaree",
       "address": "Off Bateman Courtyard",
       "osm": null,
       "point": [-32.05645, 115.74395],
       "confidence": "low",
-      "contents": ["Campus Ministry / Chaplain", "Counselling Office"]
+      "note": "Unnamed on the official map (listed as ND9).",
+      "contents": ["Chaplaincy", "Manjaree"]
     },
     {
       "ref": "ND11",
-      "name": "School of Law",
+      "name": "School of Law & Business",
       "address": "Bateman Courtyard / Croke Street",
       "osm": "way/164418329",
       "confidence": "low",
       "contents": [
-        "Academic Offices",
-        "Lecture Rooms",
-        "Minter Ellison Computer Laboratory",
-        "Dean's Office"
+        "Lecture rooms",
+        "ND Student Law Society & the ND Business Society"
       ]
     },
     {
@@ -117,23 +102,30 @@
       "address": "28 Marine Terrace",
       "osm": "way/144058106",
       "confidence": "high",
-      "contents": ["Student Residence", "Hesburgh Room", "University Bookshop"]
+      "contents": ["Port Lodge"]
     },
     {
       "ref": "ND13",
-      "name": "Law Library",
+      "name": "Craven Law Centre",
       "address": "Croke Street",
       "osm": "way/164418330",
       "confidence": "low",
-      "contents": ["Law Library"]
+      "note": "Unnamed on the official map (listed as ND13).",
+      "contents": [
+        "Classrooms",
+        "Craven Law Centre",
+        "HDR Student Hub",
+        "Graduate Research Centre",
+        "Justice Neville Owen Moot Court"
+      ]
     },
     {
       "ref": "ND14",
-      "name": "School of Law",
+      "name": "School of Law & Business",
       "address": "Corner Henry & Croke Streets",
       "osm": "way/164418322",
       "confidence": "medium",
-      "contents": ["Academic Offices"]
+      "contents": ["School of Law & Business"]
     },
     {
       "ref": "ND15",
@@ -141,32 +133,30 @@
       "address": "Off Mouat Street",
       "osm": null,
       "point": [-32.0563, 115.7441],
-      "confidence": "low",
+      "confidence": "medium",
       "kind": "courtyard",
       "contents": ["Courtyard"]
     },
     {
       "ref": "ND16",
-      "name": "General Classroom Building",
+      "name": "Celia Hammond Student Support Centre",
       "address": "Off Bateman Courtyard",
       "osm": null,
       "point": [-32.0564, 115.7442],
       "confidence": "low",
-      "contents": ["Classrooms"]
+      "contents": [
+        "Student Success",
+        "Indigenous Student Engagement and Success"
+      ]
     },
     {
       "ref": "ND17",
-      "name": "St Teresa's Library",
+      "name": "Michael J M Wright Library",
       "address": "Mouat Street",
       "osm": "way/164418324",
       "confidence": "high",
-      "contents": [
-        "Arts & Sciences",
-        "Business",
-        "Education",
-        "Philosophy & Theology",
-        "Reference Library"
-      ]
+      "note": "Formerly St Teresa's Library.",
+      "contents": ["Library"]
     },
     {
       "ref": "ND18",
@@ -174,15 +164,15 @@
       "address": "21 Henry Street",
       "osm": "way/164418326",
       "confidence": "medium",
-      "contents": ["Academic Offices", "Dean's Office"]
+      "contents": ["School of Medicine"]
     },
     {
       "ref": "ND19",
-      "name": "Head of Campus Office",
+      "name": "School of Medicine",
       "address": "16 High Street",
       "osm": "way/122218689",
       "confidence": "high",
-      "contents": ["Head of Campus Office", "Student Appeals & Academic Affairs"]
+      "contents": ["Psychology consult suites", "Paramedicine"]
     },
     {
       "ref": "ND21",
@@ -190,27 +180,29 @@
       "address": "25–29 Henry Street",
       "osm": "way/164418327",
       "confidence": "medium",
-      "contents": ["General Classroom Block"]
+      "contents": ["Classrooms"]
     },
     {
       "ref": "ND22",
-      "name": "Court House",
+      "name": "Former Fremantle Courthouse",
       "address": "Corner Mouat Street & Marine Terrace",
       "osm": "way/122218675",
       "confidence": "high",
-      "contents": ["Justice Owen Moot Court", "Drill Hall Courtyard"]
+      "contents": ["Drill Hall Courtyard"]
     },
     {
       "ref": "ND23",
-      "name": "Owston's Buildings",
-      "address": "9–23 High Street",
+      "name": "Main Reception, Prospective Students & Admissions Office",
+      "address": "9–23 High Street (Owston's Buildings)",
       "osm": "way/79622209",
       "confidence": "high",
       "contents": [
-        "Admissions Office",
-        "Prospective Students Office",
-        "Events Office",
-        "Finance Office (first floor)"
+        "Mail room",
+        "Advancement Unit",
+        "International Student Office",
+        "Study Abroad Office",
+        "National Marketing Office",
+        "Communications and Engagement"
       ]
     },
     {
@@ -219,42 +211,38 @@
       "address": "Croke Street",
       "osm": "way/50638449",
       "confidence": "medium",
-      "contents": ["Academic Offices", "Dean's Office"]
+      "contents": ["School of Philosophy & Theology"]
     },
     {
       "ref": "ND25",
-      "name": "The Drill Hall",
+      "name": "Drill Hall",
       "address": "Mouat Street (between Croke Street & Marine Terrace)",
       "osm": "way/1050973994",
       "confidence": "medium",
-      "contents": ["Ceremonial, Lecture & Conference Hall"]
+      "contents": ["Ceremonial, lecture, exams & conference hall"]
     },
     {
       "ref": "ND28",
-      "name": "School of Physiotherapy",
+      "name": "School of Health Sciences",
       "address": "22 High Street",
       "osm": "way/173025706",
       "confidence": "high",
-      "contents": ["Academic Offices", "Dean's Office"]
-    },
-    {
-      "ref": "ND30",
-      "name": "Cleopatra Hotel",
-      "address": "24 High Street",
-      "osm": "way/173025708",
-      "confidence": "medium",
-      "contents": ["Student Residence"]
+      "contents": [
+        "Physiotherapy gymnasium",
+        "Physiotherapy laboratory",
+        "Academic offices (level 2)"
+      ]
     },
     {
       "ref": "ND31",
-      "name": "Physiotherapy & Computer Laboratories",
+      "name": "School of Nursing & Midwifery",
       "address": "18–20 High Street",
       "osm": "way/1050973974",
       "confidence": "medium",
       "contents": [
-        "Physiotherapy Laboratory",
-        "Computer Laboratory",
-        "School of Arts & Sciences (first floor): Academic Offices"
+        "Midwifery laboratory",
+        "Academic offices (level 2)",
+        "Classroom (level 2)"
       ]
     },
     {
@@ -263,28 +251,29 @@
       "address": "Corner High & Cliff Streets (Union Bank Building)",
       "osm": "way/97787215",
       "confidence": "high",
-      "contents": [
-        "Computer Laboratory",
-        "Science Laboratories",
-        "Academic Offices"
-      ]
+      "contents": ["Science laboratories", "Architecture studios"]
     },
     {
       "ref": "ND33",
-      "name": "IT Services",
+      "name": "Communications & Media Studios",
       "address": "7 High Street",
       "osm": "way/79622213",
       "confidence": "high",
-      "contents": ["IT Services"]
+      "note": "Unnamed on the official map (listed as ND33).",
+      "contents": [
+        "Communications laboratory",
+        "Studio space",
+        "Post-production suite"
+      ]
     },
     {
       "ref": "ND34",
       "name": "School of Medicine",
       "address": "Henry Street",
       "osm": null,
-      "point": [-32.05605, 115.74435],
+      "point": [-32.05625, 115.7444],
       "confidence": "low",
-      "contents": ["Reception", "Academic Offices"]
+      "contents": ["School of Medicine"]
     },
     {
       "ref": "ND35",
@@ -293,11 +282,12 @@
       "osm": "way/228773931",
       "confidence": "medium",
       "contents": [
-        "Clinical Training Laboratories",
-        "Classrooms & Lecture Theatre",
-        "Academic Offices",
+        "Anatomy laboratory",
+        "Classrooms & lecture theatre",
+        "Clinical training laboratories",
+        "Resource room",
         "Michael Quinlan Room",
-        "Roy & Amy Galvin Medical Library"
+        "Galvin Study Centre"
       ]
     },
     {
@@ -307,61 +297,53 @@
       "osm": "way/173025709",
       "confidence": "high",
       "contents": [
-        "Computer Laboratories",
+        "Computer laboratories",
         "Classrooms",
-        "Academic Offices",
-        "Dean's Office"
+        "Education Courtyard"
       ]
     },
     {
       "ref": "ND37",
-      "name": "School of Nursing",
+      "name": "School of Nursing & Midwifery",
       "address": "17–19 Phillimore Street",
       "osm": "way/122218686",
       "confidence": "medium",
       "contents": [
         "Doreen McCarthy Nursing Laboratory",
         "Helen Court Nursing Laboratory",
-        "Classrooms",
-        "Academic Offices",
-        "Dean's Office"
+        "Classrooms"
       ]
     },
     {
       "ref": "ND38",
-      "name": "School of Medicine",
+      "name": "Physiotherapy Laboratory",
       "address": "29 Henry Street",
       "osm": null,
       "point": [-32.056, 115.7442],
       "confidence": "low",
-      "contents": ["Resource Room", "Anatomy Laboratory"]
+      "note": "Unnamed on the official map (listed as ND38).",
+      "contents": ["Classroom", "Physiotherapy laboratory"]
     },
     {
       "ref": "ND39",
-      "name": "School of Medicine",
+      "name": "Celia Hammond Student Support Centre",
       "address": "45 Henry Street",
       "osm": null,
       "point": [-32.05648, 115.74442],
       "confidence": "low",
-      "contents": ["Academic Offices"]
+      "contents": ["Student Life", "Library staff (level 2)"]
     },
     {
       "ref": "ND40",
-      "name": "School of Health Sciences",
+      "name": "Nursing Simulation Labs",
       "address": "33 Phillimore Street (Frank Cadd Building)",
       "osm": "way/173025701",
       "confidence": "high",
-      "contents": [
-        "Biomedical Science",
-        "Exercise Science",
-        "Health & Physical Education",
-        "Dean's Office",
-        "Research Office (third floor)"
-      ]
+      "contents": ["Nursing Simulation Labs"]
     },
     {
       "ref": "ND42",
-      "name": "Chancellery (Hotel Fremantle)",
+      "name": "Fremantle Hotel",
       "address": "6 High Street",
       "osm": "way/122218684",
       "confidence": "high",
@@ -370,55 +352,87 @@
         "Fairweathers Bar",
         "John Paul II Room",
         "Carolyn Tannock Courtyard",
-        "School of Arts & Sciences (first floor): Academic Offices, Dean's Office",
-        "School of Business (second floor): Accounting & Finance, Management & Marketing, Dean's Office"
+        "School of Arts & Sciences (level 2)"
       ]
     },
     {
       "ref": "ND43",
-      "name": "School of Nursing",
-      "address": "1–3 Mouat Street (Howard Smith Building)",
+      "name": "Howard Smith Building",
+      "address": "1–3 Mouat Street",
       "osm": "way/670828890",
       "confidence": "high",
-      "contents": ["Reception", "Academic Offices", "Classrooms"]
+      "note": "Unnamed on the official map (listed as ND43); historic building name used.",
+      "contents": ["Multi-faith prayer room", "Classrooms (levels 2 & 3)"]
     },
     {
       "ref": "ND44",
-      "name": "Academic Enabling & Support Centre",
+      "name": "Pathways & VET",
       "address": "28 Mouat Street",
       "osm": "way/164418320",
       "confidence": "high",
-      "contents": ["Academic Enabling & Support Centre"]
-    },
-    {
-      "ref": "ND45",
-      "name": "Campus Services Office",
-      "address": "30 Mouat Street (Strelitz Buildings)",
-      "osm": "way/164418328",
-      "confidence": "low",
-      "note": "Freotopia places ND45 in the eastern section of Owston's Buildings (9–23 High St); the Strelitz Buildings footprint between ND44 and ND7 is used here pending verification.",
-      "contents": ["Campus Services Office"]
+      "contents": ["Pathways & VET"]
     },
     {
       "ref": "ND46",
-      "name": "Health Sciences Research",
+      "name": "School of Health Sciences & Institute for Health Research",
       "address": "35 Phillimore Street",
       "osm": "way/173025705",
       "confidence": "medium",
       "contents": [
-        "School of Health Sciences: John Bloomfield Exercise Science Laboratory, Preventive Health Research Clinic, Lecture Theatre, Research Training Lecture Theatre, Seminar Rooms, Academic Offices",
-        "Institute for Health Research: Academic Offices (second floor)",
-        "School of Physiotherapy (second floor): Physiotherapy Training & Research, Brian Edwards Physiotherapy Sciences Laboratory, Neurosciences Laboratory, LifeSpan Sciences Laboratory"
+        "Brian Edwards Physiotherapy Laboratory",
+        "Exercise rehabilitation laboratory",
+        "John Bloomfield Exercise Research laboratory",
+        "Motor control laboratory",
+        "Lecture theatre",
+        "LifeSpan sciences laboratory",
+        "Neurosciences laboratory",
+        "Occupational therapy laboratory",
+        "Institute for Health Research",
+        "Research Student Office"
       ]
     },
     {
       "ref": "ND48",
-      "name": "Campus Services & IT",
-      "address": "7 Pakenham Street (Vacuum Oil Company Building)",
-      "osm": "way/142222981",
+      "name": "Customs House",
+      "address": "Phillimore Street",
+      "osm": "way/142222969",
       "confidence": "medium",
-      "note": "Not on the 2015 PDF; added from later campus information (freotopia). Verify against the current official map.",
-      "contents": ["Campus Services", "IT Services"]
+      "note": "Matched to the OSM footprint named Fremantle Customs House; the official map's grid (A7) suggests a position nearer Pakenham Street — verify on the ground.",
+      "contents": [
+        "Campus Services",
+        "Information Technology Office",
+        "Finance",
+        "Payroll",
+        "Quality and Risk",
+        "People and Culture"
+      ]
+    },
+    {
+      "ref": "ND49",
+      "name": "Staff & Student Gym",
+      "address": "Phillimore / Pakenham Streets",
+      "osm": "way/142222981",
+      "confidence": "low",
+      "contents": [
+        "Health Sciences Reception",
+        "Student & staff gymnasium",
+        "Classroom"
+      ]
+    },
+    {
+      "ref": "ND50",
+      "name": "Wellbeing Centre & School of Nursing & Midwifery",
+      "address": "49 Phillimore Street (Robert Harper Building)",
+      "osm": "way/1013675207",
+      "confidence": "low",
+      "contents": [
+        "Wellbeing Centre",
+        "Access & Inclusion",
+        "Student Counselling Service",
+        "Respect Officer",
+        "School of Nursing & Midwifery Reception",
+        "Research Office"
+      ]
     }
   ]
 }

@@ -89,12 +89,15 @@ _none yet._
 ### DATA-001 — Verify the 11 low-confidence building locations on the ground
 
 - **Status:** open · **Severity:** high · **Date:** 2026-07-21
-- **Location:** `data/nd-buildings.json` (entries with `"confidence": "low"`:
-  ND2, ND8, ND9, ND11, ND13, ND15, ND16, ND34, ND38, ND39, ND45)
+- **Location:** `data/nd-buildings.json` (entries with `"confidence": "low"`
+  after the Nov-2025 map update: ND8, ND9, ND11, ND13, ND16, ND34, ND38,
+  ND39, ND49, ND50)
 - **Problem:** These ND references could not be confidently matched to an OSM
-  footprint during initial curation; eight render as approximate point markers
-  and three (ND11, ND13, ND45) use best-guess polygons. Users may be directed
-  to the wrong building.
+  footprint during curation; six render as approximate point markers and four
+  (ND11, ND13, ND49, ND50) use best-guess polygons. Users may be directed
+  to the wrong building. ND48's footprint is medium-confidence but its
+  official grid square (A7) disagrees with the OSM Customs House position —
+  check it too.
 - **Goal:** Walk the campus (or cross-reference the current official map) and
   for each entry either assign the correct `osm` way id from
   `data/footprints-raw.json` or correct the `point`, then raise `confidence`.
@@ -104,20 +107,19 @@ _none yet._
 
 ### DATA-002 — Re-verify all building data against the current official campus map
 
-- **Status:** open · **Severity:** high · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** high · **Date:** 2026-07-21
 - **Location:** `data/nd-buildings.json` (all entries);
-  `reference/fremantle-campus-map-2015.pdf`
+  `reference/fremantle-campus-map-2025-11.pdf`
 - **Problem:** Building names/contents were transcribed from the Sept 2015
   edition of the official PDF (the newest copy fetchable — the university site
-  Cloudflare-blocks bots). The current campus almost certainly differs (e.g.
-  ND48 exists per later sources; schools have moved buildings since 2015).
-- **Goal:** Have a human download the current PDF from
-  https://www.notredame.edu.au/__data/assets/pdf_file/0023/2687/fremantle-campus-map.pdf
-  into `reference/`, then diff every ref/name/contents against
-  nd-buildings.json and update entries (bump `confidence` where confirmed).
-- **Done when:** The current PDF is committed in `reference/`, every entry in
-  nd-buildings.json matches it (or documents the divergence in a `note`), and
-  the map is redeployed.
+  Cloudflare-blocks bots), so the dataset lagged a decade of campus changes.
+- **Resolution:** User uploaded the current November 2025 official map
+  (ND6572); every entry rewritten against it in PR #6 — renames (ND17 Michael
+  J M Wright Library, ND7 Peter Prendiville Study Centre, ND42 Fremantle
+  Hotel, ND22 Former Fremantle Courthouse), contents moves (Moot Court
+  ND22→ND13), removals (ND5, ND30, ND45 no longer university buildings),
+  additions (ND49, ND50; ND48 re-matched to the Customs House footprint).
+  Residual location uncertainty tracked in DATA-001.
 
 ## UX — UX / Accessibility
 
