@@ -12,6 +12,11 @@
     [-32.0522, 115.7465]
   );
 
+  // Fixed rotation (via vendored leaflet-rotate) so building east/west walls
+  // are vertical, matching the official PDF map. 20° = the Fremantle street
+  // grid's offset from north (dominant footprint edge bearing ≈ 70°).
+  var MAP_BEARING = 20;
+
   var map = L.map('map', {
     center: [-32.0554, 115.7437],
     zoom: 17,
@@ -19,7 +24,14 @@
     maxZoom: 19,
     maxBounds: CAMPUS_BOUNDS,
     maxBoundsViscosity: 1.0,
-    zoomControl: false
+    zoomControl: false,
+    rotate: true,
+    bearing: MAP_BEARING,
+    // Rotation is fixed: suppress leaflet-rotate's user-facing rotation UI
+    // and gestures (rotateControl + shiftKeyRotate default to ON).
+    rotateControl: false,
+    shiftKeyRotate: false,
+    touchRotate: false
   });
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
