@@ -22,7 +22,6 @@ const POI_QUERY = `[out:json][timeout:60];
 (
   nwr["amenity"="parking"]["access"!="private"](${BBOX});
   node["highway"="bus_stop"](${BBOX});
-  nwr["amenity"="bicycle_parking"](${BBOX});
 );
 out tags center;`;
 
