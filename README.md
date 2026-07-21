@@ -12,7 +12,7 @@ This is an unofficial project, not affiliated with or endorsed by the University
 - **All ND building numbers and names** with their contents, sourced from the official campus map PDF
 - **Search functionality** — find by building number, name, or room/facility
 - **Building detail panel** — tap a building to see full details
-- **Parking, bus stop, and bike parking markers** — other campus amenities (the free Fremantle CAT bus shown on the official PDF was discontinued in 2023, so regular Transperth stops are shown instead)
+- **Parking and bus stop markers** — other campus amenities (the free Fremantle CAT bus shown on the official PDF was discontinued in 2023, so regular Transperth stops are shown instead)
 - **Map locked to the campus area** — navigation constrained to Fremantle West End
 
 ## Running Locally

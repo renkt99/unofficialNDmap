@@ -161,12 +161,9 @@
     if (kind === 'parking') {
       glyph = 'P';
       cls = 'poi-parking';
-    } else if (kind === 'bus_stop') {
+    } else {
       glyph = '🚌'; // bus emoji
       cls = 'poi-bus';
-    } else {
-      glyph = '🚲'; // bike emoji
-      cls = 'poi-bike';
     }
     return L.divIcon({
       className: 'poi-icon-wrap',
@@ -263,18 +260,9 @@
         onEachFeature: bindPoiTooltip
       }).addTo(map);
 
-      var bikeLayer = L.geoJSON(poisData, {
-        filter: poiFilter('bicycle_parking'),
-        pointToLayer: function (feature, latlng) {
-          return L.marker(latlng, { icon: poiIcon('bicycle_parking') });
-        },
-        onEachFeature: bindPoiTooltip
-      }).addTo(map);
-
-      NDMap.poiLayers = { parking: parkingLayer, bus_stop: busLayer, bicycle_parking: bikeLayer };
+      NDMap.poiLayers = { parking: parkingLayer, bus_stop: busLayer };
       overlays['Parking'] = parkingLayer;
       overlays['Bus stops'] = busLayer;
-      overlays['Bike parking'] = bikeLayer;
     }
 
     if (Object.keys(overlays).length) {

@@ -80,7 +80,6 @@ for (const el of poisRaw.elements) {
   let kind = null;
   if (t.amenity === 'parking') kind = 'parking';
   else if (t.highway === 'bus_stop') kind = 'bus_stop';
-  else if (t.amenity === 'bicycle_parking') kind = 'bicycle_parking';
   if (!kind) continue;
   // Note: the PDF legend shows CAT bus stops, but the Fremantle CAT service
   // was discontinued in 2023 — regular (Transperth) stops are shown instead.
