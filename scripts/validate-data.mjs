@@ -53,6 +53,14 @@ for (const ref of curatedRefs) {
 }
 for (const f of buildings.features) {
   const p = f.properties;
+  if (f.geometry.type !== 'Point') {
+    const lp = p.labelPoint;
+    if (!Array.isArray(lp) || lp.length !== 2) {
+      errors.push(`${p.ref}: missing labelPoint`);
+    } else if (lp[1] < BOUNDS.south || lp[1] > BOUNDS.north || lp[0] < BOUNDS.west || lp[0] > BOUNDS.east) {
+      errors.push(`${p.ref}: labelPoint outside campus bounds`);
+    }
+  }
   if (!p.name) errors.push(`${p.ref}: missing name`);
   if (!Array.isArray(p.contents) || p.contents.length === 0) errors.push(`${p.ref}: empty contents`);
   if (!['high', 'medium', 'low'].includes(p.confidence)) errors.push(`${p.ref}: bad confidence "${p.confidence}"`);

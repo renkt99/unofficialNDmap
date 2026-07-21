@@ -38,6 +38,108 @@ function geometryFor(el) {
     : { type: 'MultiPolygon', coordinates: polys };
 }
 
+// --- Label anchor: pole of inaccessibility ("polylabel") ---
+// The interior point farthest from the outline — anchors the NDxx label at
+// the footprint's visual centre (a plain centroid drifts to the edge, or
+// outside entirely, on L-shaped footprints). Runs in locally-scaled degrees
+// (lon × cos(lat)) so x/y distances are comparable.
+
+function segDistSq(x, y, [ax, ay], [bx, by]) {
+  let dx = bx - ax;
+  let dy = by - ay;
+  let px = ax;
+  let py = ay;
+  if (dx !== 0 || dy !== 0) {
+    const t = ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy);
+    if (t > 1) {
+      px = bx;
+      py = by;
+    } else if (t > 0) {
+      px += dx * t;
+      py += dy * t;
+    }
+  }
+  dx = x - px;
+  dy = y - py;
+  return dx * dx + dy * dy;
+}
+
+// Signed distance from (x, y) to the polygon outline: positive inside.
+function polygonDist(x, y, rings) {
+  let inside = false;
+  let minSq = Infinity;
+  for (const ring of rings) {
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const a = ring[i];
+      const b = ring[j];
+      if (a[1] > y !== b[1] > y && x < ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]) + a[0]) {
+        inside = !inside;
+      }
+      minSq = Math.min(minSq, segDistSq(x, y, a, b));
+    }
+  }
+  return (inside ? 1 : -1) * Math.sqrt(minSq);
+}
+
+function poleOfInaccessibility(rings, precision) {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const [x, y] of rings[0]) {
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x);
+    maxY = Math.max(maxY, y);
+  }
+  const cellSize = Math.min(maxX - minX, maxY - minY);
+  if (cellSize === 0) return [minX, minY];
+
+  const cell = (x, y, h) => ({ x, y, h, d: polygonDist(x, y, rings), max: 0 });
+  const withMax = (c) => ((c.max = c.d + c.h * Math.SQRT2), c);
+
+  const queue = [];
+  for (let x = minX; x < maxX; x += cellSize) {
+    for (let y = minY; y < maxY; y += cellSize) {
+      queue.push(withMax(cell(x + cellSize / 2, y + cellSize / 2, cellSize / 2)));
+    }
+  }
+  let best = cell((minX + maxX) / 2, (minY + maxY) / 2, 0);
+  while (queue.length) {
+    queue.sort((a, b) => a.max - b.max);
+    const c = queue.pop();
+    if (c.d > best.d) best = c;
+    if (c.max - best.d <= precision) continue;
+    const h = c.h / 2;
+    queue.push(
+      withMax(cell(c.x - h, c.y - h, h)),
+      withMax(cell(c.x + h, c.y - h, h)),
+      withMax(cell(c.x - h, c.y + h, h)),
+      withMax(cell(c.x + h, c.y + h, h)),
+    );
+  }
+  return [best.x, best.y];
+}
+
+function ringArea(ring) {
+  let sum = 0;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    sum += (ring[j][0] - ring[i][0]) * (ring[j][1] + ring[i][1]);
+  }
+  return Math.abs(sum / 2);
+}
+
+// [lon, lat] label anchor for a Polygon/MultiPolygon geometry. For
+// multipolygons the label goes on the largest part.
+function labelPointFor(geometry) {
+  const polys = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
+  const rings = polys.reduce((a, b) => (ringArea(b[0]) > ringArea(a[0]) ? b : a));
+  const k = Math.cos((rings[0][0][1] * Math.PI) / 180);
+  const scaled = rings.map((ring) => ring.map(([lon, lat]) => [lon * k, lat]));
+  const [x, y] = poleOfInaccessibility(scaled, 5e-6); // ≈ 0.5 m
+  return [Number((x / k).toFixed(7)), Number(y.toFixed(7))];
+}
+
 const features = [];
 for (const b of curated.buildings) {
   const props = {
@@ -56,6 +158,7 @@ for (const b of curated.buildings) {
     if (!el) throw new Error(`${b.ref}: OSM element ${b.osm} not found in footprints-raw.json`);
     geometry = geometryFor(el);
     props.osm = b.osm;
+    props.labelPoint = labelPointFor(geometry);
   } else if (b.point) {
     geometry = { type: 'Point', coordinates: [b.point[1], b.point[0]] };
   } else {
