@@ -7,6 +7,7 @@
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { BOUNDS } from './bounds.mjs';
 
 const dataDir = (f) => fileURLToPath(new URL(`../data/${f}`, import.meta.url));
 
@@ -88,7 +89,7 @@ for (const el of poisRaw.elements) {
   if (lat == null || lon == null) continue;
   // Query bbox clips ways loosely; keep only POIs whose centre is inside the
   // campus bounds the map is locked to (must match validate-data.mjs).
-  if (lat < -32.0615 || lat > -32.0515 || lon < 115.7405 || lon > 115.7515) continue;
+  if (lat < BOUNDS.south || lat > BOUNDS.north || lon < BOUNDS.west || lon > BOUNDS.east) continue;
   poiFeatures.push({
     type: 'Feature',
     properties: { kind, name: t.name ?? null, osm: `${el.type}/${el.id}` },

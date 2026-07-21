@@ -5,13 +5,15 @@
 (function () {
   'use strict';
 
+  // Keep in sync with scripts/bounds.mjs BOUNDS — this file has no bundler
+  // so it can't import that module directly.
   var CAMPUS_BOUNDS = L.latLngBounds(
-    [-32.0615, 115.7405],
-    [-32.0515, 115.7515]
+    [-32.0585, 115.7408],
+    [-32.0522, 115.7465]
   );
 
   var map = L.map('map', {
-    center: [-32.0560, 115.7440],
+    center: [-32.0554, 115.7437],
     zoom: 17,
     minZoom: 16,
     maxZoom: 19,
@@ -54,40 +56,38 @@
   function baseStyle(feature) {
     if (feature.properties.kind === 'courtyard') {
       return {
-        color: '#3d5a7a',
-        weight: 1.5,
-        opacity: 0.85,
-        fillColor: '#7c98b8',
-        fillOpacity: 0.16,
-        dashArray: '4,3'
+        color: '#005cab',
+        weight: 1,
+        opacity: 1,
+        fillColor: '#69b3e3',
+        fillOpacity: 0.9
       };
     }
     return {
-      color: '#0d1f3d',
-      weight: 1.5,
-      opacity: 0.9,
-      fillColor: '#1a3a6b',
-      fillOpacity: 0.25
+      color: '#002c61',
+      weight: 1,
+      opacity: 1,
+      fillColor: '#005cab',
+      fillOpacity: 0.92
     };
   }
 
   function highlightStyle(feature) {
     if (feature.properties.kind === 'courtyard') {
       return {
-        color: '#2a415c',
-        weight: 2.5,
+        color: '#002c61',
+        weight: 2,
         opacity: 1,
-        fillColor: '#5b7a9d',
-        fillOpacity: 0.42,
-        dashArray: '4,3'
+        fillColor: '#005cab',
+        fillOpacity: 0.96
       };
     }
     return {
-      color: '#0d1f3d',
-      weight: 3,
+      color: '#002c61',
+      weight: 2,
       opacity: 1,
-      fillColor: '#1a3a6b',
-      fillOpacity: 0.55
+      fillColor: '#002c61',
+      fillOpacity: 0.96
     };
   }
 

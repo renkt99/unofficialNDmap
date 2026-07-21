@@ -9,11 +9,12 @@
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { BOUNDS } from './bounds.mjs';
 
 const dataDir = (f) => fileURLToPath(new URL(`../data/${f}`, import.meta.url));
 
-// Must stay in sync with CAMPUS_BOUNDS in js/app.js (map lock bounds).
-const BOUNDS = { south: -32.0615, west: 115.7405, north: -32.0515, east: 115.7515 };
+// BOUNDS comes from ./bounds.mjs; must stay in sync with CAMPUS_BOUNDS in
+// js/app.js (map lock bounds) — see bounds.mjs for details.
 
 const errors = [];
 
