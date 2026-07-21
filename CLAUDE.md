@@ -12,9 +12,13 @@ dependencies — plain HTML/CSS/JS served as-is (GitHub Pages branch build of
   with `node scripts/build-geojson.mjs` and check with
   `node scripts/validate-data.mjs` (run this before every merge; there is no
   CI gate yet — see BLD-001 in `audits/FINDINGS.md`).
-- The campus bounds constants exist in three places (`js/app.js`
-  `CAMPUS_BOUNDS`, `scripts/validate-data.mjs` `BOUNDS`, and the POI filter in
-  `scripts/build-geojson.mjs`) — change all or none.
+- The campus bounds live in `scripts/bounds.mjs` (`BOUNDS`), imported by both
+  `scripts/validate-data.mjs` and the POI filter in `scripts/build-geojson.mjs`,
+  plus the `CAMPUS_BOUNDS` literal in `js/app.js` (which must be kept in sync
+  by hand — that file has no bundler and can't import `bounds.mjs`) — change
+  `bounds.mjs` and `js/app.js` together, never one without the other.
+  `scripts/fetch-footprints.mjs` intentionally queries a wider bbox for its
+  raw OSM snapshots and should NOT be tightened to match.
 
 ## Audit workflow
 
