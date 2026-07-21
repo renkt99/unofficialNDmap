@@ -127,16 +127,12 @@ _none yet._
 
 ### BLD-001 — Commit the CI and Pages workflows once the gh token has workflow scope
 
-- **Status:** open · **Severity:** med · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** med · **Date:** 2026-07-21
 - **Location:** `.github/workflows/ci.yml`, `.github/workflows/pages.yml`
-  (written, currently untracked)
-- **Problem:** The gh OAuth token lacks the `workflow` scope, so the CI
+- **Problem:** The gh OAuth token lacked the `workflow` scope, so the CI
   workflow (data validation on PRs) and the Actions-based Pages deploy could
-  not be pushed. Merges to main currently ship with no automated gate;
-  `node scripts/validate-data.mjs` must be run manually before every merge.
-- **Goal:** Run `gh auth refresh -h github.com -s workflow` (interactive),
-  commit both workflow files via a PR, verify CI runs and fails on bad data,
-  then switch Pages back to the Actions build:
-  `gh api repos/renkt99/unofficialNDmap/pages -X PUT -f build_type=workflow`.
-- **Done when:** A PR shows the CI check running; a deliberately broken data
-  fixture fails it; Pages deploys via the workflow.
+  not be pushed; merges to main shipped with no automated gate.
+- **Resolution:** Token refreshed with `workflow` scope; both workflows
+  committed via PR #4, CI verified green on that PR and verified to fail on a
+  deliberately broken data fixture, Pages switched from legacy branch build to
+  `build_type=workflow`.
