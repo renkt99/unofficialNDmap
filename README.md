@@ -30,7 +30,7 @@ Then open http://localhost:8000 in your browser.
 The data workflow consists of three scripts:
 
 1. **`node scripts/fetch-footprints.mjs`** — Fetches OSM building footprints and POIs via Overpass into `data/*-raw.json` snapshots
-2. **`node scripts/build-geojson.mjs`** — Merges the hand-curated `data/nd-buildings.json` with the footprints into `data/buildings.geojson` and `data/pois.geojson`
+2. **`node scripts/build-geojson.mjs`** — Merges the hand-curated `data/nd-buildings.json` with the footprints into `data/buildings.geojson`, `data/pois.geojson`, and `data/context-buildings.geojson` (non-campus buildings drawn as muted context)
 3. **`node scripts/validate-data.mjs`** — Sanity checks the generated data (also run in CI)
 
 **Curated source of truth:** `data/nd-buildings.json`
