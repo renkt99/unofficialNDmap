@@ -138,15 +138,29 @@
     );
   }
 
-  function updateZoomClass() {
-    var el = map.getContainer();
-    if (map.getZoom() >= 18) {
-      L.DomUtil.addClass(el, 'zoom-detail');
-    } else {
-      L.DomUtil.removeClass(el, 'zoom-detail');
-    }
+  // Show a building's name line only when its footprint is big enough on
+  // screen to hold it (measured per building on every zoom). Point-fallback
+  // buildings never show names on the map — the panel and search cover them.
+  var NAME_MIN_PX = { width: 76, height: 40 };
+  function updateLabelFit() {
+    Object.keys(NDMap.buildingsById).forEach(function (ref) {
+      var layer = NDMap.buildingsById[ref].layer;
+      var tooltip = layer.getTooltip && layer.getTooltip();
+      var el = tooltip && tooltip.getElement && tooltip.getElement();
+      if (!el) return;
+      var fits = false;
+      if (layer.getBounds) {
+        var b = layer.getBounds();
+        var nw = map.latLngToLayerPoint(b.getNorthWest());
+        var se = map.latLngToLayerPoint(b.getSouthEast());
+        fits =
+          Math.abs(se.x - nw.x) >= NAME_MIN_PX.width &&
+          Math.abs(se.y - nw.y) >= NAME_MIN_PX.height;
+      }
+      L.DomUtil[fits ? 'addClass' : 'removeClass'](el, 'show-name');
+    });
   }
-  map.on('zoomend', updateZoomClass);
+  map.on('zoomend', updateLabelFit);
 
   // ---- Map background click closes the detail panel -------------------
 
@@ -267,7 +281,7 @@
       NDMap.buildingsData = buildingsData;
       NDMap.buildingsLayer = buildingsLayer;
       overlays['Buildings'] = buildingsLayer;
-      updateZoomClass();
+      updateLabelFit();
       document.dispatchEvent(new CustomEvent('ndmap:buildings-ready', { detail: buildingsData }));
     }
 

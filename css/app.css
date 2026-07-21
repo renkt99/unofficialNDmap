@@ -110,7 +110,7 @@ body {
   max-width: 140px;
 }
 
-.leaflet-container.zoom-detail .building-label .label-name {
+.leaflet-tooltip.building-label.show-name .label-name {
   display: block;
 }
 
