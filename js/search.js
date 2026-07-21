@@ -1,6 +1,6 @@
 /*
  * search.js — search box: index ref / name / address / contents, ranked results,
- * select-to-zoom-and-open-panel.
+ * select-to-highlight-and-open-panel (no zoom change).
  */
 (function () {
   'use strict';
@@ -102,11 +102,21 @@
     var feature = (entry && entry.feature) || item.feature;
 
     if (layer) {
-      if (layer.getLatLng) {
-        NDMap.map.setView(layer.getLatLng(), 18);
-      } else if (layer.getBounds) {
-        NDMap.map.fitBounds(layer.getBounds(), { padding: [40, 40], maxZoom: 19 });
-      }
+      // Don't zoom to the result — the gold highlight (applied by openPanel)
+      // marks it. Just nudge the map at the current zoom if the building
+      // would otherwise sit off-screen or under the detail panel.
+      var props = feature.properties || {};
+      var anchor = layer.getLatLng
+        ? layer.getLatLng()
+        : props.labelPoint
+          ? L.latLng(props.labelPoint[1], props.labelPoint[0])
+          : layer.getBounds().getCenter();
+      var isDesktop = window.matchMedia('(min-width: 768px)').matches;
+      var mapHeight = NDMap.map.getSize().y;
+      NDMap.map.panInside(anchor, {
+        paddingTopLeft: L.point(isDesktop ? 360 : 40, 60),
+        paddingBottomRight: L.point(40, isDesktop ? 60 : Math.round(mapHeight * 0.45) + 40)
+      });
     }
 
     if (NDMap.openPanel) NDMap.openPanel(feature, layer);
