@@ -72,6 +72,37 @@ const fc = {
 writeFileSync(dataDir('buildings.geojson'), JSON.stringify(fc));
 console.log(`Wrote data/buildings.geojson (${features.length} features)`);
 
+// --- Context buildings (non-campus) ---
+// All other footprints inside the campus bounds, drawn as muted beige blocks
+// beneath the ND buildings (the raster basemap's own buildings are too bright
+// against the cream tint). Geometry only — they are non-interactive.
+const usedOsm = new Set(curated.buildings.map((b) => b.osm).filter(Boolean));
+const contextFeatures = [];
+for (const el of raw.elements) {
+  const id = `${el.type}/${el.id}`;
+  if (usedOsm.has(id)) continue;
+  let geometry;
+  try {
+    geometry = geometryFor(el);
+  } catch {
+    continue; // e.g. relation without resolvable outer geometry
+  }
+  // Keep any footprint that reaches into the campus bounds (edge-crossers included).
+  const flat = [];
+  const walk = (c) => (typeof c[0] === 'number' ? flat.push(c) : c.forEach(walk));
+  walk(geometry.coordinates);
+  const inside = flat.some(
+    ([lon, lat]) => lat >= BOUNDS.south && lat <= BOUNDS.north && lon >= BOUNDS.west && lon <= BOUNDS.east,
+  );
+  if (!inside) continue;
+  contextFeatures.push({ type: 'Feature', properties: {}, geometry });
+}
+writeFileSync(
+  dataDir('context-buildings.geojson'),
+  JSON.stringify({ type: 'FeatureCollection', _attribution: '© OpenStreetMap contributors (ODbL)', features: contextFeatures }),
+);
+console.log(`Wrote data/context-buildings.geojson (${contextFeatures.length} features)`);
+
 // --- POIs ---
 const poisRaw = JSON.parse(readFileSync(dataDir('pois-raw.json'), 'utf8'));
 const poiFeatures = [];

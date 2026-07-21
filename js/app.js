@@ -198,6 +198,19 @@
       return null;
     });
 
+  // Non-campus buildings, drawn as muted beige blocks beneath the ND
+  // buildings — the raster basemap's own footprints are too bright against
+  // the cream tint. Non-interactive context only.
+  var contextPromise = fetch('data/context-buildings.geojson')
+    .then(function (res) {
+      if (!res.ok) throw new Error('context-buildings.geojson HTTP ' + res.status);
+      return res.json();
+    })
+    .catch(function (err) {
+      console.warn('Context buildings layer unavailable', err);
+      return null;
+    });
+
   var poisPromise = fetch('data/pois.geojson')
     .then(function (res) {
       if (!res.ok) throw new Error('pois.geojson HTTP ' + res.status);
@@ -208,10 +221,25 @@
       return null;
     });
 
-  Promise.all([buildingsPromise, poisPromise]).then(function (results) {
+  Promise.all([buildingsPromise, poisPromise, contextPromise]).then(function (results) {
     var buildingsData = results[0];
     var poisData = results[1];
+    var contextData = results[2];
     var overlays = {};
+
+    if (contextData) {
+      // Added first so it renders beneath the ND building layer.
+      L.geoJSON(contextData, {
+        interactive: false,
+        style: {
+          color: '#dcc9b8',
+          weight: 0.6,
+          opacity: 1,
+          fillColor: '#e8d8c9',
+          fillOpacity: 1
+        }
+      }).addTo(map);
+    }
 
     if (buildingsData) {
       var buildingsLayer = L.geoJSON(buildingsData, {

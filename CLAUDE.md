@@ -8,7 +8,7 @@ dependencies — plain HTML/CSS/JS served as-is (GitHub Pages branch build of
 - App: `index.html`, `css/app.css`, `js/{app,panel,locate,search}.js` — IIFEs
   sharing the `window.NDMap` namespace; `js/app.js` must load first.
 - Data: `data/nd-buildings.json` is the hand-curated source of truth; never
-  edit `data/buildings.geojson` / `data/pois.geojson` directly — regenerate
+  edit `data/buildings.geojson` / `data/pois.geojson` / `data/context-buildings.geojson` directly — regenerate
   with `node scripts/build-geojson.mjs` and check with
   `node scripts/validate-data.mjs` (run this before every merge; there is no
   CI gate yet — see BLD-001 in `audits/FINDINGS.md`).
