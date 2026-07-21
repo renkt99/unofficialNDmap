@@ -103,20 +103,26 @@
 
     if (layer) {
       // Don't zoom to the result — the gold highlight (applied by openPanel)
-      // marks it. Just nudge the map at the current zoom if the building
-      // would otherwise sit off-screen or under the detail panel.
+      // marks it. Pan at the current zoom so the building sits centred in
+      // the map area left visible by the search bar and the detail panel
+      // (left side panel on desktop, bottom sheet on mobile). panTo may
+      // clamp at maxBounds, in which case the building ends up as close to
+      // centred as the bounds allow.
       var props = feature.properties || {};
       var anchor = layer.getLatLng
         ? layer.getLatLng()
         : props.labelPoint
           ? L.latLng(props.labelPoint[1], props.labelPoint[0])
           : layer.getBounds().getCenter();
+      var map = NDMap.map;
+      var size = map.getSize();
       var isDesktop = window.matchMedia('(min-width: 768px)').matches;
-      var mapHeight = NDMap.map.getSize().y;
-      NDMap.map.panInside(anchor, {
-        paddingTopLeft: L.point(isDesktop ? 360 : 40, 60),
-        paddingBottomRight: L.point(40, isDesktop ? 60 : Math.round(mapHeight * 0.45) + 40)
-      });
+      var top = container.getBoundingClientRect().bottom + 10;
+      var left = isDesktop ? 320 : 0;
+      var bottom = isDesktop ? size.y : size.y * 0.55;
+      var target = L.point((left + size.x) / 2, (top + bottom) / 2);
+      var delta = map.latLngToContainerPoint(anchor).subtract(target);
+      map.panTo(map.containerPointToLatLng(L.point(size.x / 2 + delta.x, size.y / 2 + delta.y)));
     }
 
     if (NDMap.openPanel) NDMap.openPanel(feature, layer);
