@@ -22,7 +22,11 @@
     zoom: 17,
     minZoom: 16,
     maxZoom: 19,
-    maxBounds: CAMPUS_BOUNDS,
+    // Padded: with the strict bounds, a phone viewport at minZoom already
+    // spans more latitude than the campus, pinning the centre so panInside
+    // (search.js) can never pull a highlighted building out from under the
+    // bottom-sheet panel. The pad gives pan slack; campusBounds stays strict.
+    maxBounds: CAMPUS_BOUNDS.pad(0.5),
     maxBoundsViscosity: 1.0,
     zoomControl: false,
     rotate: true,
@@ -84,22 +88,16 @@
     };
   }
 
+  // Selection highlight (search result / tapped building) — gold, so the
+  // selected footprint is unmistakable against the blue buildings and the
+  // beige context layer.
   function highlightStyle(feature) {
-    if (feature.properties.kind === 'courtyard') {
-      return {
-        color: '#002c61',
-        weight: 2,
-        opacity: 1,
-        fillColor: '#005cab',
-        fillOpacity: 0.96
-      };
-    }
     return {
       color: '#002c61',
       weight: 2,
       opacity: 1,
-      fillColor: '#002c61',
-      fillOpacity: 0.96
+      fillColor: '#ffc72c',
+      fillOpacity: 0.95
     };
   }
 
