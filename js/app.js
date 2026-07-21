@@ -139,40 +139,13 @@
     NDMap.selectedRef = ref;
   };
 
-  // ---- Building label (permanent tooltip pill) ------------------------
+  // ---- Building label (permanent NDxx ref tooltip) --------------------
+  // Refs only — names and contents live in the tap/click detail panel.
 
   function buildingLabelHtml(feature) {
     var ref = feature.properties.ref || '';
-    var name = feature.properties.name || '';
-    return (
-      '<span class="label-ref">' + escapeHtml(ref) + '</span>' +
-      '<span class="label-name">' + escapeHtml(name) + '</span>'
-    );
+    return '<span class="label-ref">' + escapeHtml(ref) + '</span>';
   }
-
-  // Show a building's name line only when its footprint is big enough on
-  // screen to hold it (measured per building on every zoom). Point-fallback
-  // buildings never show names on the map — the panel and search cover them.
-  var NAME_MIN_PX = { width: 76, height: 40 };
-  function updateLabelFit() {
-    Object.keys(NDMap.buildingsById).forEach(function (ref) {
-      var layer = NDMap.buildingsById[ref].layer;
-      var tooltip = layer.getTooltip && layer.getTooltip();
-      var el = tooltip && tooltip.getElement && tooltip.getElement();
-      if (!el) return;
-      var fits = false;
-      if (layer.getBounds) {
-        var b = layer.getBounds();
-        var nw = map.latLngToLayerPoint(b.getNorthWest());
-        var se = map.latLngToLayerPoint(b.getSouthEast());
-        fits =
-          Math.abs(se.x - nw.x) >= NAME_MIN_PX.width &&
-          Math.abs(se.y - nw.y) >= NAME_MIN_PX.height;
-      }
-      L.DomUtil[fits ? 'addClass' : 'removeClass'](el, 'show-name');
-    });
-  }
-  map.on('zoomend', updateLabelFit);
 
   // ---- Map background click closes the detail panel -------------------
 
@@ -293,7 +266,19 @@
       NDMap.buildingsData = buildingsData;
       NDMap.buildingsLayer = buildingsLayer;
       overlays['Buildings'] = buildingsLayer;
-      updateLabelFit();
+
+      // Re-anchor each label at the footprint's pole of inaccessibility
+      // (properties.labelPoint, precomputed by scripts/build-geojson.mjs) —
+      // Leaflet's default polygon centre sits off-centre, or outside, on
+      // L-shaped footprints. Must run after addTo(map): permanent tooltips
+      // only get a latlng once they open.
+      Object.keys(NDMap.buildingsById).forEach(function (ref) {
+        var entry = NDMap.buildingsById[ref];
+        var lp = entry.feature.properties.labelPoint;
+        var tooltip = entry.layer.getTooltip && entry.layer.getTooltip();
+        if (lp && tooltip) tooltip.setLatLng([lp[1], lp[0]]);
+      });
+
       document.dispatchEvent(new CustomEvent('ndmap:buildings-ready', { detail: buildingsData }));
     }
 

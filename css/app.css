@@ -97,23 +97,6 @@ body {
   display: none;
 }
 
-.building-label .label-ref {
-  display: block;
-}
-
-.building-label .label-name {
-  display: none;
-  font-weight: 400;
-  font-size: 10px;
-  color: #ffffff;
-  white-space: normal;
-  max-width: 140px;
-}
-
-.leaflet-tooltip.building-label.show-name .label-name {
-  display: block;
-}
-
 /* ---------------------------------------------------------------- */
 /* POI markers                                                       */
 /* ---------------------------------------------------------------- */
