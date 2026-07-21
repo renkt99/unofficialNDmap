@@ -39,7 +39,7 @@ The data workflow consists of three scripts:
 
 - **Building footprints and POIs** © OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright)
 - **Basemap tiles** by CARTO (Positron), © OpenStreetMap contributors © CARTO
-- **Building references and contents** transcribed from the official Fremantle Campus Map PDF (10 Sept 2015 edition, archived in `reference/`)
+- **Building references and contents** transcribed from the official Fremantle Campus Map PDF (November 2025 edition, archived in `reference/` alongside the superseded Sept 2015 edition)
 - **Address cross-references** from freotopia.org
 - **Leaflet 1.9.4** (BSD-2) vendored in `vendor/`
 
