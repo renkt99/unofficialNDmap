@@ -101,6 +101,12 @@
     var layer = entry && entry.layer;
     var feature = (entry && entry.feature) || item.feature;
 
+    if (NDMap.openPanel) NDMap.openPanel(feature, layer);
+
+    inputEl.value = item.text;
+    clearResults();
+    inputEl.blur();
+
     if (layer) {
       // Don't zoom to the result — the gold highlight (applied by openPanel)
       // marks it. Pan at the current zoom so the building sits centred in
@@ -108,28 +114,30 @@
       // (left side panel on desktop, bottom sheet on mobile). panTo may
       // clamp at maxBounds, in which case the building ends up as close to
       // centred as the bounds allow.
+      //
+      // Runs after clearResults/blur, on a delay: the top of the visible
+      // band is measured from the input box (never the results dropdown,
+      // which is still open when a result is tapped), and on phones the
+      // on-screen keyboard closing on blur resizes the map — measure after
+      // it has settled.
       var props = feature.properties || {};
       var anchor = layer.getLatLng
         ? layer.getLatLng()
         : props.labelPoint
           ? L.latLng(props.labelPoint[1], props.labelPoint[0])
           : layer.getBounds().getCenter();
-      var map = NDMap.map;
-      var size = map.getSize();
-      var isDesktop = window.matchMedia('(min-width: 768px)').matches;
-      var top = container.getBoundingClientRect().bottom + 10;
-      var left = isDesktop ? 320 : 0;
-      var bottom = isDesktop ? size.y : size.y * 0.55;
-      var target = L.point((left + size.x) / 2, (top + bottom) / 2);
-      var delta = map.latLngToContainerPoint(anchor).subtract(target);
-      map.panTo(map.containerPointToLatLng(L.point(size.x / 2 + delta.x, size.y / 2 + delta.y)));
+      setTimeout(function () {
+        var map = NDMap.map;
+        var size = map.getSize();
+        var isDesktop = window.matchMedia('(min-width: 768px)').matches;
+        var top = inputEl.getBoundingClientRect().bottom + 10;
+        var left = isDesktop ? 320 : 0;
+        var bottom = isDesktop ? size.y : size.y * 0.55;
+        var target = L.point((left + size.x) / 2, (top + bottom) / 2);
+        var delta = map.latLngToContainerPoint(anchor).subtract(target);
+        map.panTo(map.containerPointToLatLng(L.point(size.x / 2 + delta.x, size.y / 2 + delta.y)));
+      }, 250);
     }
-
-    if (NDMap.openPanel) NDMap.openPanel(feature, layer);
-
-    inputEl.value = item.text;
-    clearResults();
-    inputEl.blur();
   }
 
   var debounceTimer = null;
