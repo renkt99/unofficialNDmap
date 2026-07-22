@@ -109,7 +109,7 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### COR-002 — Keep the locate button visual in sync with actual tracking state
 
-- **Status:** open · **Severity:** med · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** med · **Date:** 2026-07-22
 - **Location:** `js/locate.js:165-170` (click recenter branch) and
   `js/locate.js:103-108` (`onPosition()` out-of-bounds branch)
 - **Problem:** Two paths let the button claim "following" while nothing is
@@ -118,14 +118,18 @@ Every `open` entry is written to be handed off as-is by its ID:
   last fix the button lights up but no pan happens and no dot exists; (2) an
   out-of-campus fix removes the dot but never calls `updateButtonVisual()`, so
   the button stays "active/following" indefinitely with no dot on the map.
-- **Goal:** In the recenter branch, only set `following`/update the visual
-  inside the guarded block (toast otherwise); in `onPosition()`'s
-  out-of-bounds branch, update the button visual (or introduce a "no fix"
-  visual state) so button state always matches dot presence.
-- **Done when:** Simulating an out-of-campus fix (devtools sensor override)
-  never leaves the button in "following" style while the dot is absent, and
-  tapping the button with no valid fix gives feedback instead of a silent
-  state flip.
+- **Resolution:** In the click recenter branch, `following = true` and
+  `updateButtonVisual()` now run only inside the guarded block where
+  `lastLatLng` exists and is in bounds; otherwise a toast fires instead of
+  flipping the button state silently. In `onPosition()`'s out-of-bounds
+  branch, the previously write-only `firstFix` flag is now read: if the very
+  first fix is out of bounds, `stopWatching()` runs (clears `active`/
+  `following`, matching a failed locate); if a later fix goes out of bounds
+  after tracking was already working, the dot is removed and `following` is
+  cleared/visual updated while `watching` stays true, so a subsequent
+  in-bounds fix can resume following. Verified headless via Chromium CDP
+  geolocation overrides for out-of-campus-first-fix, in-campus-fix, and
+  mid-track out-of-campus transitions; zero console/page errors (this PR).
 
 ### COR-003 — Make CI fail when committed geojson is stale vs the curated source
 

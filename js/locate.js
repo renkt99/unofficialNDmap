@@ -102,7 +102,18 @@
 
     if (!NDMap.campusBounds.contains(latlng)) {
       showToast("You're outside the campus area");
-      removeDot();
+      if (firstFix) {
+        // Never got a usable fix at all — treat like a failed locate rather
+        // than leaving the button lit for a track that never started.
+        stopWatching();
+      } else {
+        // Was tracking fine and wandered off-campus — keep the watch alive
+        // so a later in-bounds fix can resume following, but the dot is
+        // gone so the button must stop claiming to be "following".
+        removeDot();
+        following = false;
+        updateButtonVisual();
+      }
       firstFix = false;
       return;
     }
@@ -163,10 +174,12 @@
     if (!watching) {
       startWatching();
     } else if (!following) {
-      following = true;
-      updateButtonVisual();
       if (lastLatLng && NDMap.campusBounds.contains(lastLatLng)) {
+        following = true;
+        updateButtonVisual();
         map.panTo(lastLatLng);
+      } else {
+        showToast("You're outside the campus area");
       }
     } else {
       stopWatching();
