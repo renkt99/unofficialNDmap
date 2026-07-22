@@ -24,9 +24,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # Publish only what the app serves — never the raw OSM snapshots,
+      # the university's reference PDFs, or repo tooling (BLD-003).
+      - name: Stage site files
+        run: |
+          mkdir _site
+          cp index.html .nojekyll _site/
+          cp -r css js vendor _site/
+          mkdir _site/data
+          cp data/*.geojson _site/data/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
