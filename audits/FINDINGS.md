@@ -133,7 +133,7 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### COR-003 — Make CI fail when committed geojson is stale vs the curated source
 
-- **Status:** open · **Severity:** med · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** med · **Date:** 2026-07-22
 - **Location:** `.github/workflows/ci.yml` (single step:
   `node scripts/validate-data.mjs`)
 - **Problem:** CI validates the committed `data/*.geojson` but never runs
@@ -141,11 +141,7 @@ Every `open` entry is written to be handed off as-is by its ID:
   `name`/`contents`/`confidence` in `nd-buildings.json` without regenerating
   passes CI silently (the ref-uniqueness check only catches add/remove drift,
   not content drift).
-- **Goal:** Add a CI step that runs `node scripts/build-geojson.mjs` followed
-  by `git diff --exit-code data/*.geojson` before validation, failing the
-  build when regeneration changes the output.
-- **Done when:** A PR that edits `nd-buildings.json` without regenerating the
-  geojson fails CI with the diff shown.
+- **Resolution:** ci.yml now regenerates the geojson and fails on any diff before validating (this PR).
 
 ### COR-004 — Fail loudly when a relation's outer member lacks geometry
 
