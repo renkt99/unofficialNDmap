@@ -583,17 +583,20 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### UX-003 — Provide (or explicitly document) a keyboard path to building footprints
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** wontfix · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `js/app.js:242-262` (click-only handlers on Leaflet `Path`
   layers, which are never focusable — verified against vendor/leaflet.js)
 - **Problem:** Building shapes and circle markers can't be tabbed to, so the
   map itself has no keyboard interaction path; search is the only keyboard
   entry point to a building's panel.
-- **Goal:** After UX-001 lands, either accept search as the designated
-  keyboard path (document it in the info modal / README) or add focusable
-  proxies for footprints. Decide deliberately rather than by omission.
-- **Done when:** Either a documented decision (flip to wontfix with rationale)
-  or tabbable building access exists.
+- **Resolution:** Deliberate decision — search is the designated keyboard
+  path. Since UX-001 it is a full ARIA combobox reaching every building and
+  facility (arrow keys + Enter opens the focus-managed panel, UX-002), so
+  keyboard users have complete coverage; ~40 focusable proxy elements over
+  non-focusable Leaflet paths would add real complexity to the no-deps ES5
+  codebase for marginal benefit. Documented in the README features list and
+  the info modal ("Keyboard users: the search box reaches every building…").
+  Revisit only if the map gains keyboard panning-based interactions.
 
 ### UX-004 — Announce toast messages to screen readers
 
