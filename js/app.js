@@ -51,6 +51,18 @@
   }).addTo(map);
 
   L.control.zoom({ position: 'bottomright' }).addTo(map);
+  // Stays 'bottomleft' — bottomright was tried and rejected: it already
+  // holds the zoom control + #locate-btn (a plain positioned div, not a
+  // Leaflet control), and #locate-btn shares the bottom-right corner
+  // container's z-index (1000) but is later in DOM order, so it painted over
+  // the attribution text with no clean way to reorder it short of retuning
+  // #locate-btn's pixel offsets around Leaflet's control stack height.
+  // Instead, css/app.css shifts the licence-required OSM/CARTO attribution
+  // clear of the desktop detail panel (left-docked, 320px, z-index 1300) via
+  // a fixed left margin at the desktop breakpoint — independent of whether
+  // the panel is open, so no JS state coupling is needed — and raises its
+  // z-index above the mobile bottom sheet so it stays visible (composited
+  // over the sheet) when that's open too. See the comment there.
   map.attributionControl.setPosition('bottomleft');
 
   // Must match the @media (min-width: 768px) breakpoints in css/app.css.
