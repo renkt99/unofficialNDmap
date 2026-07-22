@@ -188,7 +188,8 @@ body {
 }
 
 .search-result:hover,
-.search-result:active {
+.search-result:active,
+.search-result.active {
   background: var(--bg);
 }
 

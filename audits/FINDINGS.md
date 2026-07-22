@@ -417,7 +417,7 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### UX-001 — Give the search box combobox ARIA semantics and arrow-key navigation
 
-- **Status:** open · **Severity:** high · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** high · **Date:** 2026-07-22
 - **Location:** `index.html:14-15` (`#search-input`, `#search-results`);
   `js/search.js:71-166` (`renderResults`, keydown handler)
 - **Problem:** The input has no accessible name and no combobox role; the
@@ -425,14 +425,12 @@ Every `open` entry is written to be handed off as-is by its ID:
   wiring; keydown handles only Escape/Enter and Enter always selects
   `currentResults[0]`. Screen-reader users get an unlabeled box with invisible
   results; keyboard users can only ever reach the top match of up to 8.
-- **Goal:** Add `aria-label`, `role="combobox"`, `aria-expanded`,
-  `aria-controls`, `aria-autocomplete="list"` to the input; `role="listbox"`
-  /`role="option"` (with ids) to the results; track an active index, update
-  `aria-activedescendant`, and handle ArrowUp/ArrowDown with Enter selecting
-  the active option.
-- **Done when:** A keyboard-only user can arrow through all results and select
-  any of them; a screen reader announces the field, result count/options, and
-  the active option.
+- **Resolution:** Added `aria-label`/`role="combobox"`/`aria-expanded`/
+  `aria-controls`/`aria-autocomplete` to the input, `role="listbox"` to the
+  results container, `role="option"`/id/`aria-selected` to each rendered
+  result, and ArrowUp/ArrowDown handling that wraps, updates
+  `aria-activedescendant` and a `.active` highlight class, with Enter
+  selecting the active (or first) option (this PR).
 
 ### UX-002 — Make the detail panel and info modal real dialogs with focus management
 
