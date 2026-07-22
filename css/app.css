@@ -488,3 +488,16 @@ body {
 .leaflet-bar a {
   color: var(--navy);
 }
+
+/* ---------------------------------------------------------------- */
+/* Vestibular safety: reduce motion for users who request it        */
+/* ---------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .gps-dot-pulse {
+    animation: none;
+  }
+  #detail-panel {
+    transition: none;
+  }
+}
