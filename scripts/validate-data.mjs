@@ -16,6 +16,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { BOUNDS } from './bounds.mjs';
+import { parseAppJsCampusBounds } from './parse-app-bounds.mjs';
 
 const KNOWN_POI_KINDS = ['parking', 'bus_stop'];
 
@@ -28,6 +29,25 @@ const dataDir = (f) => resolve(dataDirPath, f);
 // js/app.js (map lock bounds) — see bounds.mjs for details.
 
 const errors = [];
+
+// CQ-003: catch drift between js/app.js's hand-copied CAMPUS_BOUNDS and
+// BOUNDS above. Always checks the real js/app.js (see parse-app-bounds.mjs)
+// regardless of the dataDir argument — this is a code-level check, not a
+// data-fixture one, so fixture-dir validation runs still validate it.
+try {
+  const appJsBounds = parseAppJsCampusBounds();
+  const mismatched = ['south', 'west', 'north', 'east'].filter((k) => appJsBounds[k] !== BOUNDS[k]);
+  if (mismatched.length) {
+    errors.push(
+      `CAMPUS_BOUNDS in js/app.js does not match BOUNDS in scripts/bounds.mjs ` +
+        `(mismatched: ${mismatched.join(', ')}) — js/app.js: ${JSON.stringify(appJsBounds)}, ` +
+        `bounds.mjs: ${JSON.stringify(BOUNDS)}`,
+    );
+  }
+} catch (err) {
+  // Fail loudly rather than silently skipping the check.
+  errors.push(`CAMPUS_BOUNDS drift check: ${err.message}`);
+}
 
 function coordsWithin(geometry) {
   const flat = [];

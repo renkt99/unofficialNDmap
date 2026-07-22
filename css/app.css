@@ -1,6 +1,9 @@
 /* unofficialNDmap — app styling */
 
 :root {
+  /* --navy and --navy-mid/--accent-blue are mirrored as the COLOR_NAVY /
+     COLOR_UNI_BLUE constants in js/app.js (Leaflet vector styles need plain
+     color strings, not custom properties) — keep both copies in sync. */
   --navy: #002c61;
   --navy-mid: #005cab;
   --navy-soft: #3d5a7a;
@@ -143,6 +146,7 @@ body {
   width: min(420px, calc(100% - 24px - var(--safe-left) - var(--safe-right)));
 }
 
+/* Must match DESKTOP_MIN_WIDTH in js/app.js and js/search.js. */
 @media (min-width: 768px) {
   #search-container {
     left: calc(16px + var(--safe-left));
@@ -280,6 +284,8 @@ body {
   right: 0;
   bottom: 0;
   top: auto;
+  /* js/search.js measures this via offsetHeight rather than hardcoding 45%,
+     so this value is free to change without touching JS. */
   height: 45%;
   border-radius: 16px 16px 0 0;
   transform: translateY(100%);
@@ -298,6 +304,7 @@ body {
   background: rgba(0, 44, 97, 0.25);
 }
 
+/* Must match DESKTOP_MIN_WIDTH in js/app.js and js/search.js. */
 @media (min-width: 768px) {
   #detail-panel {
     top: 0;

@@ -5,6 +5,9 @@
 (function () {
   'use strict';
 
+  if (!window.NDMap) {
+    throw new Error('NDMap missing: js/app.js must load before js/search.js');
+  }
   var NDMap = window.NDMap;
   var escapeHtml = NDMap.escapeHtml;
 
@@ -12,6 +15,15 @@
   var inputEl = document.getElementById('search-input');
   var resultsEl = document.getElementById('search-results');
   var panelEl = document.getElementById('detail-panel');
+
+  // Must match the @media (min-width: 768px) breakpoints in css/app.css.
+  var DESKTOP_MIN_WIDTH = 768;
+  // Input-debounce delay before re-running search() on each keystroke.
+  var SEARCH_DEBOUNCE_MS = 120;
+  // Delay before panning to a selected result, so the on-screen keyboard
+  // (mobile) has settled and layout measurements below are accurate — see
+  // the comment inside selectResult()'s setTimeout.
+  var PAN_DELAY_MS = 250;
 
   var index = [];
   var currentResults = [];
@@ -168,7 +180,7 @@
       panTimer = setTimeout(function () {
         var map = NDMap.map;
         var size = map.getSize();
-        var isDesktop = window.matchMedia('(min-width: 768px)').matches;
+        var isDesktop = window.matchMedia('(min-width: ' + DESKTOP_MIN_WIDTH + 'px)').matches;
         var top = inputEl.getBoundingClientRect().bottom + 10;
         // Measure the panel/sheet itself rather than hardcoding its CSS
         // dimensions (320px desktop width / 45% mobile sheet height), so a
@@ -184,7 +196,7 @@
         var target = L.point((left + size.x) / 2, (top + bottom) / 2);
         var delta = map.latLngToContainerPoint(anchor).subtract(target);
         map.panTo(map.containerPointToLatLng(L.point(size.x / 2 + delta.x, size.y / 2 + delta.y)));
-      }, 250);
+      }, PAN_DELAY_MS);
     }
   }
 
@@ -198,7 +210,7 @@
     debounceTimer = setTimeout(function () {
       currentResults = search(inputEl.value);
       renderResults(currentResults);
-    }, 120);
+    }, SEARCH_DEBOUNCE_MS);
   });
 
   resultsEl.addEventListener('click', function (e) {

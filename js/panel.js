@@ -5,6 +5,9 @@
 (function () {
   'use strict';
 
+  if (!window.NDMap) {
+    throw new Error('NDMap missing: js/app.js must load before js/panel.js');
+  }
   var NDMap = window.NDMap;
   var escapeHtml = NDMap.escapeHtml;
 
@@ -47,6 +50,9 @@
     return html;
   }
 
+  // Opens the detail panel for `feature`. `layer` is optional — pass the
+  // Leaflet layer (used to derive an anchor point elsewhere, e.g. search.js's
+  // pan-to-center) or omit it if only the panel content/highlight matter.
   NDMap.openPanel = function (feature, layer) {
     if (!feature) return;
     var wasOpen = !panelEl.classList.contains('hidden');
@@ -80,6 +86,8 @@
     }, 0);
   };
 
+  // Closes the detail panel (no-op if already closed) and clears the
+  // building highlight.
   NDMap.closePanel = function () {
     if (panelEl.classList.contains('hidden')) return;
     panelEl.classList.add('hidden');
