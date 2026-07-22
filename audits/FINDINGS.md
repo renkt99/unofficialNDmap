@@ -391,17 +391,14 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### CQ-005 — Document the ES5-browser vs ESM-scripts convention (and decide on lint)
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `js/*.js` (ES5 `var`-only IIFEs, verified 0 let/const/arrows)
   vs `scripts/*.mjs` (modern ESM); no lint config anywhere; `ci.yml` runs only
   `validate-data.mjs`
 - **Problem:** The two-convention split is consistent but documented nowhere,
   so a contributor could "modernize" the browser files or mix styles with
   nothing to flag it.
-- **Goal:** Add a short note to CLAUDE.md/README stating the convention and
-  why (browser files ship unbundled and stay ES5-conservative; scripts are
-  Node-only ESM). Optionally add a minimal ESLint step to CI later.
-- **Done when:** The convention and its rationale are stated in-repo.
+- **Resolution:** Added "Code Conventions" subsection to README.md explaining the ES5 browser / ESM Node split and why, plus a summary line in CLAUDE.md's app bullet (this PR).
 
 ### CQ-006 — Bare uncaught errors in build-geojson.mjs abort the whole build
 
@@ -519,17 +516,12 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### DATA-003 — Document a refresh cadence for the OSM snapshots
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `README.md` / `CLAUDE.md` (absent); `scripts/fetch-footprints.mjs`
 - **Problem:** No policy anywhere states when to re-run `fetch-footprints.mjs`
   against Overpass; OSM footprints in the bbox can move or be re-tagged
   independently of this repo, and the snapshots will silently age.
-- **Goal:** Add a one-line policy to the README data-pipeline section (e.g.
-  re-fetch every 6 months or before each semester; after each refresh, diff
-  the raw snapshots and review changed/removed way/relation ids referenced by
-  `osm` fields before regenerating).
-- **Done when:** The cadence and post-refresh review steps are stated in the
-  README.
+- **Resolution:** Added "OSM snapshot refresh policy" paragraph to README.md's Data Pipeline section: re-fetch every 6 months or before each semester, then diff raw snapshots and review changed/removed way/relation ids in `osm` fields before regenerating (this PR).
 
 ## UX — UX / Accessibility
 
@@ -738,28 +730,20 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### BLD-005 — Document the required Node version for the data pipeline
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `README.md` (data pipeline section); `ci.yml` pins
   `node-version: 22`
 - **Problem:** `scripts/*.mjs` are ES modules using `node:` specifiers, but the
   README never states a minimum Node version, so a contributor on an old Node
   gets confusing failures instead of a stated requirement.
-- **Goal:** Add one line to the README's data-pipeline section: requires
-  Node 22+ (matching CI; 18+ works but CI is the reference).
-- **Done when:** README states the Node version next to the script
-  instructions.
+- **Resolution:** Added "(requires **Node 22+**; CI is the reference)" to the Data Pipeline section header in README.md (this PR).
 
 ### BLD-006 — Document the Leaflet vendoring/upgrade procedure
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `vendor/` (Leaflet 1.9.4 + leaflet-rotate, hand-vendored; no
   lockfile, no SRI attributes in `index.html`)
 - **Problem:** There is no written procedure for upgrading the vendored
   libraries, and no automated check that a vendor swap didn't break rendering —
   a future upgrade done casually could silently break the map.
-- **Goal:** Add a short "Vendoring / upgrading" note to the README or CLAUDE.md:
-  download the target dist bundle, diff against committed `vendor/` files
-  before overwriting, keep `leaflet.css` and `vendor/images/` siblings, and
-  re-test map rendering (desktop + mobile viewports) before merging.
-- **Done when:** The procedure is documented and mentions the css/images
-  sibling constraint from `audits/build-packaging.md`.
+- **Resolution:** Added "Vendoring & Upgrading Leaflet" section to README.md documenting the diff-before-overwrite procedure, the leaflet.css / vendor/images/ sibling constraint, and the need to re-test on desktop + mobile viewports (this PR).

@@ -6,7 +6,9 @@ dependencies — plain HTML/CSS/JS served as-is (GitHub Pages branch build of
 `/unofficialNDmap/` subpath: all asset/data references must stay **relative**).
 
 - App: `index.html`, `css/app.css`, `js/{app,panel,locate,search}.js` — IIFEs
-  sharing the `window.NDMap` namespace; `js/app.js` must load first.
+  sharing the `window.NDMap` namespace; `js/app.js` must load first. Browser
+  files are deliberately ES5 `var`-only (shipped unbundled, no build step) —
+  do not modernize them; `scripts/*.mjs` are modern Node ESM.
 - Data: `data/nd-buildings.json` is the hand-curated source of truth; never
   edit `data/buildings.geojson` / `data/pois.geojson` / `data/context-buildings.geojson` directly — regenerate
   with `node scripts/build-geojson.mjs` and check with
