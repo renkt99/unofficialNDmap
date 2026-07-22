@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>unofficialNDmap — Notre Dame Fremantle campus</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https://*.basemaps.cartocdn.com; connect-src 'self'; object-src 'none'; base-uri 'none'">
 <link rel="stylesheet" href="vendor/leaflet.css">
 <link rel="stylesheet" href="css/app.css">
 </head>
@@ -28,6 +29,7 @@
   <div id="info-modal-content">
     <button id="info-modal-close" aria-label="Close">&times;</button>
     <p id="info-modal-label">Unofficial map — not affiliated with the University of Notre Dame Australia. Building data © OpenStreetMap contributors (ODbL). Locations marked approximate are unverified.</p>
+    <p>Location: your GPS position is used only in your browser to show the blue dot and is never sent anywhere.</p>
   </div>
 </div>
 <div id="info-modal-backdrop" class="hidden"></div>

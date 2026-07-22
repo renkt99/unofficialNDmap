@@ -60,7 +60,7 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### SEC-001 — Add a meta-tag Content-Security-Policy to index.html
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `index.html` `<head>` (no CSP present)
 - **Problem:** GitHub Pages can't set response headers, so `escapeHtml()` is
   the only XSS defense; a `<meta http-equiv="Content-Security-Policy">` tag is
@@ -68,28 +68,40 @@ Every `open` entry is written to be handed off as-is by its ID:
   scripts, no inline `style=""` attributes, no `data:` URIs in the shipped
   markup/CSS (Leaflet needs `style-src 'unsafe-inline'` for its runtime pane
   transforms).
-- **Goal:** Add a meta CSP along the lines of `default-src 'self';
-  script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'
+- **Resolution:** Added `<meta http-equiv="Content-Security-Policy" content="default-src
+  'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'
   https://*.basemaps.cartocdn.com; connect-src 'self'; object-src 'none';
-  base-uri 'none'` (note `frame-ancestors` is ignored in meta CSP — omit it),
-  then verify the map, tiles, POI icons, and geolocation dot all still work
-  with no console CSP violations.
-- **Done when:** The tag ships, the deployed site renders fully, and devtools
-  shows zero CSP violations during normal use (pan, search, locate, panel).
+  base-uri 'none'">` before the stylesheet links in `index.html`'s `<head>`
+  (`frame-ancestors` omitted — ignored in meta CSP). No adjustment from the
+  draft policy was needed: the tile layer URL template in `js/app.js` is
+  `https://{s}.basemaps.cartocdn.com/...`, matching `img-src`'s wildcard; the
+  GPS dot (`js/locate.js`) is a Leaflet `divIcon` (plain HTML/CSS, no
+  `data:`/image asset); all `fetch()` calls (`js/app.js`) hit relative
+  `data/*.geojson` paths, covered by `connect-src 'self'`. Verified headless
+  (Chromium headless-shell via playwright-core) on both a 1280×900 desktop
+  viewport and a 390×780 mobile viewport (isMobile/hasTouch), exercising tile
+  load-to-networkidle, search "library" + Enter, panel close, info-modal
+  open/close, locate click with granted in-campus geolocation (-32.055,
+  115.7445) producing a rendered GPS dot, and a map pan: zero console messages
+  containing "Content Security Policy", zero `pageerror` events, and a
+  successful `basemaps.cartocdn.com` tile response with `naturalWidth` > 0
+  observed on both viewports (this PR).
 
 ### SEC-002 — State in the info modal that geolocation never leaves the device
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `index.html` info-modal text (~line 30); `js/locate.js`
 - **Problem:** The locate feature uses device GPS, but the info modal says
   nothing about location handling. Audit confirmed coordinates only feed local
   Leaflet calls and no network path can carry them — a one-line disclosure
   would make that verifiable claim user-visible.
-- **Goal:** Add one sentence to the info modal, e.g. "Location: your GPS
-  position is used only in your browser to show the blue dot and is never
-  sent anywhere."
-- **Done when:** The modal shows the sentence and it remains accurate (no
-  telemetry code exists).
+- **Resolution:** Added a second `<p>` inside `#info-modal-content` (after the
+  existing `#info-modal-label` paragraph, which is left intact since it's
+  referenced by `aria-labelledby`): "Location: your GPS position is used only
+  in your browser to show the blue dot and is never sent anywhere." Verified
+  headless (desktop + mobile viewports) that the sentence is present and
+  visible in the modal content after opening it via the info control (this
+  PR).
 
 ## COR — Correctness
 
