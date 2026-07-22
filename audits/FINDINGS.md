@@ -754,17 +754,16 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### BLD-004 — Add a LICENSE file for the project's own code
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** repo root (no `LICENSE*` file exists; README covers only data:
   OSM/ODbL, CARTO, Leaflet BSD-2, leaflet-rotate GPL-3.0)
 - **Problem:** The site's own HTML/CSS/JS has no stated license, so reuse
   rights are legally undefined. Note the vendored leaflet-rotate is GPL-3.0,
   which constrains the choice for the combined work.
-- **Goal:** Pick a license compatible with the GPL-3.0 vendored dependency
-  (GPL-3.0 itself is the safe choice for the site as distributed), add
-  `LICENSE` at the repo root, and reference it from the README.
-- **Done when:** `LICENSE` exists at the root and README's licensing section
-  mentions the project-code license alongside the data/library licenses.
+- **Resolution:** Added the canonical GPL-3.0 text as `LICENSE` at the repo
+  root (GPL-3.0 chosen for compatibility with the vendored GPL-3.0
+  leaflet-rotate governing the combined work) and referenced it from the
+  README licensing section (this PR).
 
 ### BLD-005 — Document the required Node version for the data pipeline
 

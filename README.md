@@ -51,6 +51,7 @@ The data workflow consists of three scripts (requires **Node 22+**; CI is the re
 - **Building references and contents** transcribed from the official Fremantle Campus Map PDF (November 2025 edition, archived in `reference/` alongside the superseded Sept 2015 edition)
 - **Address cross-references** from freotopia.org
 - **Leaflet 1.9.4** (BSD-2) and **leaflet-rotate 0.2.8** (GPL-3.0) vendored in `vendor/`
+- **This project's own code** (HTML/CSS/JS) is licensed under the **GPL-3.0** — see [LICENSE](LICENSE). (GPL-3.0 was chosen because the vendored leaflet-rotate is GPL-3.0, which governs the combined work as distributed.)
 
 ## Vendoring & Upgrading Leaflet
 
