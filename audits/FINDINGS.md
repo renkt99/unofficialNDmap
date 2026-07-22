@@ -221,7 +221,7 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### CQ-001 — Show a user-visible error when the buildings layer fails to load
 
-- **Status:** open · **Severity:** med · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** med · **Date:** 2026-07-22
 - **Location:** `js/app.js:193-196` (buildings fetch catch); `js/locate.js:35`
   (`showToast`, currently a private closure)
 - **Problem:** If `data/buildings.geojson` fails to fetch, the catch only
@@ -229,11 +229,12 @@ Every `open` entry is written to be handed off as-is by its ID:
   labels silently never appear with zero on-screen feedback. A toast mechanism
   exists (`showToast` in locate.js) but is not exposed on `NDMap`, so app.js
   can't reuse it.
-- **Goal:** Expose `showToast` on `NDMap` (or move it into app.js) and call it
-  from the buildings-fetch catch with a short "couldn't load building data"
-  message. Keep context/POI failures as console.warn only.
-- **Done when:** Blocking `data/buildings.geojson` in devtools shows a visible
-  toast on load; context/POI failures remain silent to the user.
+- **Resolution:** Moved `showToast` into `js/app.js` as `NDMap.showToast`
+  (app.js loads first); `js/locate.js` now aliases it instead of keeping a
+  private copy. The buildings-fetch catch in `js/app.js` calls
+  `NDMap.showToast("Couldn't load building data — try reloading")` alongside
+  the existing `console.error`; context/POI fetch failures remain
+  console-only (this PR).
 
 ### CQ-002 — Harden and document the NDMap cross-file script contract
 
