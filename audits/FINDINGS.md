@@ -724,18 +724,19 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### BLD-002 — Require the CI validate check to pass before merging to main
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** GitHub repo settings (`gh api repos/renkt99/unofficialNDmap/branches/main/protection` → 404 "Branch not protected")
 - **Problem:** `ci.yml`'s `validate` job runs and fails correctly on bad data
   (verified via PR #5), but no branch-protection rule makes it required, so
   GitHub would permit merging a PR with a failing or pending check. Today the
   only gate is the operator's watch-and-merge discipline.
-- **Goal:** Add a branch-protection rule on `main` requiring the `validate`
-  status check (repo is public, so this is available on the free plan), e.g.
-  via `gh api -X PUT repos/renkt99/unofficialNDmap/branches/main/protection`.
-- **Done when:** `gh api repos/renkt99/unofficialNDmap/branches/main/protection`
-  returns a rule listing `validate` as a required status check, and a test PR
-  with a failing check shows merge blocked in the GitHub UI.
+- **Resolution:** Branch protection enabled on `main` via
+  `gh api -X PUT .../branches/main/protection`: required status check
+  `validate` (strict=false so PRs needn't rebase after every merge),
+  `enforce_admins` on (no owner bypass), force-pushes and deletions
+  disabled, no required reviews (solo-maintainer watch-and-merge flow).
+  GET confirms the rule lists `validate`; the PR carrying this ledger
+  update was itself merged under the new rule (the PR recording this).
 
 ### BLD-003 — Stop publishing raw snapshots and reference PDFs to the public site
 
