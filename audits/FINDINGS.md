@@ -460,7 +460,7 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### UX-002 — Make the detail panel and info modal real dialogs with focus management
 
-- **Status:** open · **Severity:** med · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** med · **Date:** 2026-07-22
 - **Location:** `index.html:18,27`; `js/panel.js:45-61`
   (`openPanel`/`closePanel`); `js/search.js:108` (`inputEl.blur()`);
   `js/app.js:335-341` (`closeInfoModal`)
@@ -468,11 +468,34 @@ Every `open` entry is written to be handed off as-is by its ID:
   `aria-labelledby` (`#panel-title` exists but is unreferenced); opening never
   moves focus in (search selection even blurs the input, dropping focus to
   `<body>`), and closing never restores focus to the opener.
-- **Goal:** Add dialog roles and `aria-labelledby`; give the panel/modal (or
-  their close buttons) `tabindex="-1"` and focus them on open; remember
-  `document.activeElement` before opening and restore it on close.
-- **Done when:** Opening either surface announces it and moves focus in;
-  Escape/close returns focus to the triggering element.
+- **Resolution:** `#detail-panel` gets `role="dialog"` + `aria-labelledby="panel-title"`
+  (non-modal — the map stays interactive); `#info-modal` gets
+  `role="dialog" aria-modal="true"` + `aria-labelledby="info-modal-label"`
+  (pointed at its existing description `<p>`, given that id). `panel.js`
+  and `app.js` (info modal) each now capture `document.activeElement` into a
+  module-level `previousFocus`/`infoPreviousFocus` var the first time they
+  open from a closed state — a later `openPanel`/`openInfoModal` call while
+  already open does not overwrite it, so re-selecting a different building
+  keeps the original opener — then focus the close button. On close, focus
+  is restored to that remembered element if it's still `document.contains`-ed
+  (try/catch guard, then cleared to null); otherwise focus is left wherever
+  the browser puts it (`body`) rather than throwing. The focus-into-panel
+  move is deferred one tick (`setTimeout(fn, 0)`): moving focus to the close
+  button *synchronously* inside `selectResult`'s Enter-key handler (or the
+  info control's Enter/Space activation) put the button under focus before
+  the same keypress's keyup was dispatched — browsers deliver that keyup to
+  whatever now has focus, and a keyup on a focused `<button>` synthesizes a
+  click, instantly re-closing the panel/modal that had just opened
+  (reproduced live via the acceptance test below before the fix: `open →
+  close(button click) → close(Escape, no-op)`, all within one Enter press).
+  Deferring lets the stray keyup land on the original element (no click
+  default action there) before the button becomes focusable. Search's
+  `inputEl.blur()` (`js/search.js:108`) still runs synchronously right after
+  `openPanel()` returns — since the focus move is now deferred, this blur is
+  what actually dismisses the mobile on-screen keyboard; the close button
+  then takes focus on the next tick. Existing document-level Escape handlers
+  in `panel.js`/`app.js` already close from any focus location, so no
+  changes were needed there (this PR).
 
 ### UX-003 — Provide (or explicitly document) a keyboard path to building footprints
 
