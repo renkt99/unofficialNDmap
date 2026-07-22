@@ -180,16 +180,20 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### COR-006 — Validate POI properties and ring closure in validate-data.mjs
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `scripts/validate-data.mjs`
 - **Problem:** The validator never checks POI `kind`/`name` presence or
   validity, and never checks that polygon rings are closed — a malformed POI
   or unclosed ring would ship despite CI passing.
-- **Goal:** Add checks: every POI feature has a `kind` from the known set and
-  a non-empty `name` where required; every polygon ring's first and last
-  coordinates are equal.
-- **Done when:** Hand-breaking a POI `kind` or unclosing a ring in a scratch
-  copy makes `node scripts/validate-data.mjs` fail.
+- **Resolution:** Added a POI check requiring `kind` to be one of
+  `KNOWN_POI_KINDS` (`parking`, `bus_stop`, matching `kindForTags()` in
+  build-geojson.mjs) and `name` to be either `null` or a non-empty string
+  (real data has `name: null` for all parking lots and real names for bus
+  stops, so this passes without loosening for either kind). Added
+  `ringClosureErrors()`, applied to every Polygon/MultiPolygon ring in both
+  `buildings.geojson` and the newly-read `context-buildings.geojson`,
+  requiring each ring to have ≥4 positions and first coord === last coord.
+  `node scripts/validate-data.mjs` still passes on the real data (this PR).
 
 ### COR-007 — Cancel the pending search pan when the user types again
 
@@ -344,20 +348,30 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### TEST-002 — Self-test that validate-data.mjs actually fails on bad fixtures
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `scripts/validate-data.mjs` (only ever runs against the real
   data files)
 - **Problem:** The gate has been verified to fail on bad data exactly once,
   manually (PR #5); a regression that silently disables one of its checks
   (bounds, ref uniqueness, required fields) would go unnoticed because it
   would still exit 0 on good data.
-- **Goal:** Add bad fixtures (out-of-bounds coordinate; duplicate/missing
-  ref) under `scripts/fixtures/bad/` plus a self-test that runs
-  validate-data.mjs as a subprocess against them, asserting non-zero exit and
-  the expected error substring; include a good-fixture case asserting exit 0.
-  Wire into the same `node --test scripts/` CI step as TEST-001.
-- **Done when:** Deliberately weakening a validate-data check makes the
-  self-test (and CI) fail.
+- **Resolution:** `validate-data.mjs` now takes an optional `[dataDir]` CLI
+  arg (defaults to the real `data/`, so CI's bare invocation is unchanged).
+  Added `scripts/fixtures/good/` (one minimal building + one bus_stop + one
+  parking POI, all checks passing) and five isolated
+  `scripts/fixtures/bad/<case>/` dirs, each a full copy of the good set with
+  exactly one thing broken: `out-of-bounds` (a coordinate outside `BOUNDS`),
+  `duplicate-ref` (ND1 appears twice in buildings.geojson), `missing-field`
+  (building missing `name`), `bad-poi-kind` (POI `kind: "cafe"`),
+  `unclosed-ring` (last ring coordinate removed). `scripts/validate-data.test.mjs`
+  (node:test + `child_process.execFile`) runs the validator as a subprocess
+  against each bad dir asserting non-zero exit and a matching error
+  substring, against the good dir asserting exit 0, and with no arg against
+  the real `data/` asserting exit 0. Verified the self-test actually catches
+  regressions: temporarily short-circuited the duplicate-ref check in
+  validate-data.mjs, reran `node --test`, saw exactly the corresponding test
+  fail (20 pass / 1 fail), then reverted — confirmed clean revert and 21/21
+  passing again (this PR).
 
 ### TEST-003 — Decide on automated browser testing (rejected: keep manual headless checks)
 
