@@ -11,10 +11,12 @@
   var container = document.getElementById('search-container');
   var inputEl = document.getElementById('search-input');
   var resultsEl = document.getElementById('search-results');
+  var panelEl = document.getElementById('detail-panel');
 
   var index = [];
   var currentResults = [];
   var activeIndex = -1;
+  var panTimer = null;
 
   function buildIndex(data) {
     index = [];
@@ -114,6 +116,16 @@
   }
 
   function clearResults() {
+    // NOTE: don't clearTimeout(panTimer) in here. selectResult() calls
+    // clearResults() itself just before scheduling the pan, and removing the
+    // clicked .search-result element (via the innerHTML reset below) detaches
+    // it from the document — so the document-level "click outside" listener
+    // below sees a detached e.target, treats it as outside #search-container,
+    // and re-enters clearResults() later in the same click's bubble phase.
+    // Clearing the timer here would cancel the pan we just scheduled.
+    // Instead, the pan is invalidated explicitly at the sites that actually
+    // represent a stale-layout condition: retyping (input handler) and
+    // Escape (keydown handler) below.
     currentResults = [];
     activeIndex = -1;
     resultsEl.innerHTML = '';
@@ -153,13 +165,22 @@
         : props.labelPoint
           ? L.latLng(props.labelPoint[1], props.labelPoint[0])
           : layer.getBounds().getCenter();
-      setTimeout(function () {
+      panTimer = setTimeout(function () {
         var map = NDMap.map;
         var size = map.getSize();
         var isDesktop = window.matchMedia('(min-width: 768px)').matches;
         var top = inputEl.getBoundingClientRect().bottom + 10;
-        var left = isDesktop ? 320 : 0;
-        var bottom = isDesktop ? size.y : size.y * 0.55;
+        // Measure the panel/sheet itself rather than hardcoding its CSS
+        // dimensions (320px desktop width / 45% mobile sheet height), so a
+        // future CSS resize doesn't silently mis-center results. Read
+        // offsetWidth/offsetHeight (untransformed layout box) rather than
+        // getBoundingClientRect() — the panel opens via a transform
+        // transition, so its rect position (and, with a scale transform,
+        // size) can be mid-animation here; offsetWidth/offsetHeight are the
+        // final box size regardless of transform and pair with the panel's
+        // CSS-anchored side (left edge on desktop, bottom edge on mobile).
+        var left = isDesktop ? (panelEl ? panelEl.offsetWidth : 320) : 0;
+        var bottom = isDesktop ? size.y : (panelEl ? size.y - panelEl.offsetHeight : size.y * 0.55);
         var target = L.point((left + size.x) / 2, (top + bottom) / 2);
         var delta = map.latLngToContainerPoint(anchor).subtract(target);
         map.panTo(map.containerPointToLatLng(L.point(size.x / 2 + delta.x, size.y / 2 + delta.y)));
@@ -169,6 +190,10 @@
 
   var debounceTimer = null;
   inputEl.addEventListener('input', function () {
+    // Typing invalidates any pan still pending from a previous selection —
+    // its layout measurements (e.g. dropdown state) are stale as soon as the
+    // user starts editing again.
+    clearTimeout(panTimer);
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(function () {
       currentResults = search(inputEl.value);
@@ -185,6 +210,10 @@
 
   inputEl.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
+      // Escape doesn't reopen the dropdown, so it can't itself make a
+      // pending pan's measured layout stale, but cancel it anyway for the
+      // same "the user has moved on" reasoning as the input handler above.
+      clearTimeout(panTimer);
       clearResults();
       inputEl.blur();
     } else if (e.key === 'ArrowDown') {
@@ -206,6 +235,14 @@
   });
 
   document.addEventListener('click', function (e) {
+    // Deliberately doesn't clearTimeout(panTimer) here: selecting a result
+    // removes the clicked .search-result element from the DOM (via
+    // clearResults() inside selectResult()) before this listener runs, so
+    // e.target is detached and container.contains(e.target) is false for a
+    // normal, legitimate selection too — clearing the timer here would
+    // cancel the pan we just scheduled. Clicking outside the search UI
+    // doesn't change the input box position or panel size, so a pending
+    // pan's measured layout can't go stale this way regardless.
     if (!container.contains(e.target)) clearResults();
   });
 })();
