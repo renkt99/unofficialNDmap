@@ -12,6 +12,8 @@ import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { BOUNDS } from './bounds.mjs';
+import { extractCampusBounds, parseAppJsCampusBounds } from './parse-app-bounds.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -54,4 +56,31 @@ test('no dataDir argument: validates the real data/ directory and exits 0', asyn
   const { code, output } = await run(undefined);
   assert.equal(code, 0);
   assert.match(output, /Validation OK/);
+});
+
+// CQ-003: unit-style coverage for the CAMPUS_BOUNDS drift check. Uses direct
+// import rather than the subprocess-runner above because parse-app-bounds.mjs
+// (unlike validate-data.mjs) has no import-time side effects — see its
+// header comment.
+test('parseAppJsCampusBounds: real js/app.js CAMPUS_BOUNDS matches scripts/bounds.mjs BOUNDS', () => {
+  assert.deepEqual(parseAppJsCampusBounds(), BOUNDS);
+});
+
+test('extractCampusBounds: parses a whitespace-tolerant CAMPUS_BOUNDS literal', () => {
+  const source = `
+    var CAMPUS_BOUNDS = L.latLngBounds(
+      [ -32.0585 ,115.7408],
+      [-32.0522,   115.7465 ]
+    );
+  `;
+  assert.deepEqual(extractCampusBounds(source), {
+    south: -32.0585,
+    west: 115.7408,
+    north: -32.0522,
+    east: 115.7465,
+  });
+});
+
+test('extractCampusBounds: throws (fails loudly) when the literal is missing', () => {
+  assert.throws(() => extractCampusBounds('var x = 1;'), /Could not find a CAMPUS_BOUNDS/);
 });

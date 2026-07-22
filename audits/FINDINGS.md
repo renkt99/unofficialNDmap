@@ -295,7 +295,7 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### CQ-002 — Harden and document the NDMap cross-file script contract
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `index.html:35-40` (script tags); `js/panel.js:8-9`,
   `js/search.js:8-9`, `js/locate.js:12-13` (unguarded `window.NDMap` reads);
   `js/app.js:151,259` (asymmetric `if (NDMap.openPanel)` guards)
@@ -312,10 +312,19 @@ Every `open` entry is written to be handed off as-is by its ID:
   `closePanel`), noting `openPanel(feature, layer)`'s optional `layer`.
 - **Done when:** All three consumers fail with a self-explanatory error when
   app.js is absent, and the contract functions carry JSDoc.
+- **Resolution:** Added a load-order comment above the four `<script>` tags in
+  `index.html`; `js/panel.js`, `js/search.js`, and `js/locate.js` each now
+  throw `Error('NDMap missing: js/app.js must load before js/<file>.js')` at
+  the top of their IIFE if `window.NDMap` is missing; added short JSDoc to
+  `escapeHtml`, `showToast`, `highlightBuilding`, `clearHighlight` (all in
+  `js/app.js`) and `openPanel`/`closePanel` (`js/panel.js`), noting
+  `openPanel`'s optional `layer` param. Verified via headless Chromium with
+  `js/app.js` blocked via `page.route(...).abort()`: console shows the three
+  descriptive errors instead of undiagnostic TypeErrors (this PR).
 
 ### CQ-003 — Add an automated drift check for CAMPUS_BOUNDS vs bounds.mjs
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `js/app.js:10-13` (`CAMPUS_BOUNDS`) vs `scripts/bounds.mjs`
   (`BOUNDS`)
 - **Problem:** The two remaining hand-copies of the campus bounds are kept in
@@ -326,10 +335,25 @@ Every `open` entry is written to be handed off as-is by its ID:
   fail validation if it differs from `BOUNDS` in `bounds.mjs`.
 - **Done when:** Editing one copy without the other makes
   `node scripts/validate-data.mjs` (and hence CI) fail.
+- **Resolution:** Added `scripts/parse-app-bounds.mjs`, a side-effect-free
+  helper (`extractCampusBounds(source)` / `parseAppJsCampusBounds(path?)`)
+  that regex-parses the `CAMPUS_BOUNDS = L.latLngBounds([...], [...])`
+  literal out of `js/app.js`, resolved from its own `import.meta.url` (not
+  from the `dataDir` argument, so fixture-dir validation runs still check the
+  real `js/app.js`) and throws if the literal can't be found. Kept as a
+  separate module rather than exported from `validate-data.mjs` because that
+  file runs its checks at import time, which would make a direct-import unit
+  test re-run the whole CLI validation.  `scripts/validate-data.mjs` now
+  compares the parsed bounds against `BOUNDS` and pushes a validation error on
+  any mismatch. `scripts/validate-data.test.mjs` adds unit tests for
+  `extractCampusBounds`/`parseAppJsCampusBounds` (whitespace tolerance,
+  missing-literal throw, and that the real `js/app.js` matches `bounds.mjs`),
+  alongside the existing subprocess-based fixture tests, which are unaffected
+  (this PR).
 
 ### CQ-004 — Name and cross-reference duplicated UI constants and magic numbers
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** colors `#002c61`/`#005cab` in `css/app.css:4-7` and
   `js/app.js:75,83,86,96`; breakpoint `768px` in `js/app.js:51`,
   `js/search.js:132`, `css/app.css:146,300`; `maxZoom: 19` in
@@ -346,6 +370,24 @@ Every `open` entry is written to be handed off as-is by its ID:
   768px breakpoint, mirroring the bounds.mjs comment convention.
 - **Done when:** No repeated raw color/breakpoint/zoom literal in `js/*.js`
   lacks a named constant or a cross-reference comment.
+- **Resolution:** `js/app.js` gained `COLOR_NAVY`/`COLOR_UNI_BLUE` (used by
+  `baseStyle`/`highlightStyle`, "must match --navy / --navy-mid /
+  --accent-blue" comment, mirrored in `css/app.css`'s `:root`),
+  `DESKTOP_MIN_WIDTH = 768` (used by the layers-control collapse check, "must
+  match the @media breakpoints" comment mirrored at both `@media (min-width:
+  768px)` blocks in `css/app.css`), and `MAX_ZOOM = 19` (used by the map and
+  tile-layer `maxZoom`/`maxNativeZoom` options). `js/search.js` gained its own
+  `DESKTOP_MIN_WIDTH` (its pan-to-center measurement runs in a separate
+  closure so can't share app.js's `var`), plus `SEARCH_DEBOUNCE_MS = 120` and
+  `PAN_DELAY_MS = 250`. `js/locate.js` gained `GEO_MAX_AGE_MS = 5000` and
+  `GEO_TIMEOUT_MS = 15000` for `watchPosition`'s options; the `4000` toast
+  duration had already moved to `js/app.js` under CQ-001 and is now
+  `TOAST_DEFAULT_DURATION_MS`. `css/app.css`'s mobile bottom-sheet `height:
+  45%` got a clarifying comment (search.js measures it via `offsetHeight`
+  rather than hardcoding it, so no named-constant cross-reference is needed).
+  No behavior changes — verified via headless Chromium (desktop + mobile
+  load, search-select interaction, zero console/pageerror) and the existing
+  `node --test` suite (this PR).
 
 ### CQ-005 — Document the ES5-browser vs ESM-scripts convention (and decide on lint)
 

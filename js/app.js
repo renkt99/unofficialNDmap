@@ -6,7 +6,8 @@
   'use strict';
 
   // Keep in sync with scripts/bounds.mjs BOUNDS — this file has no bundler
-  // so it can't import that module directly.
+  // so it can't import that module directly. scripts/validate-data.mjs
+  // parses this literal and fails CI if it drifts from bounds.mjs.
   var CAMPUS_BOUNDS = L.latLngBounds(
     [-32.0585, 115.7408],
     [-32.0522, 115.7465]
@@ -17,11 +18,15 @@
   // grid's offset from north (dominant footprint edge bearing ≈ 70°).
   var MAP_BEARING = 20;
 
+  // Shared by the map's own maxZoom and the tile layer's maxZoom/maxNativeZoom
+  // below — the CARTO Positron raster tiles top out at 19 too.
+  var MAX_ZOOM = 19;
+
   var map = L.map('map', {
     center: [-32.0554, 115.7437],
     zoom: 17,
     minZoom: 16,
-    maxZoom: 19,
+    maxZoom: MAX_ZOOM,
     // Padded: with the strict bounds, a phone viewport at minZoom already
     // spans more latitude than the campus, pinning the centre so panInside
     // (search.js) can never pull a highlighted building out from under the
@@ -41,14 +46,16 @@
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
-    maxZoom: 19,
-    maxNativeZoom: 19
+    maxZoom: MAX_ZOOM,
+    maxNativeZoom: MAX_ZOOM
   }).addTo(map);
 
   L.control.zoom({ position: 'bottomright' }).addTo(map);
   map.attributionControl.setPosition('bottomleft');
 
-  var isDesktop = window.matchMedia('(min-width: 768px)').matches;
+  // Must match the @media (min-width: 768px) breakpoints in css/app.css.
+  var DESKTOP_MIN_WIDTH = 768;
+  var isDesktop = window.matchMedia('(min-width: ' + DESKTOP_MIN_WIDTH + 'px)').matches;
 
   // Shared namespace other modules attach to.
   var NDMap = (window.NDMap = {
@@ -59,6 +66,8 @@
     selectedRef: null
   });
 
+  // Escapes &, <, >, ", ' for safe insertion into innerHTML. Used throughout
+  // panel.js and search.js wherever building/POI data is rendered as HTML.
   function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str).replace(/[&<>"']/g, function (c) {
@@ -74,22 +83,32 @@
 
   var toastEl = document.getElementById('toast');
   var toastTimer = null;
+  var TOAST_DEFAULT_DURATION_MS = 4000;
+  // Shows `message` in the bottom toast for `duration` ms (defaults to
+  // TOAST_DEFAULT_DURATION_MS), replacing/resetting any toast already shown.
   function showToast(message, duration) {
     toastEl.textContent = message;
     toastEl.classList.remove('hidden');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () {
       toastEl.classList.add('hidden');
-    }, duration || 4000);
+    }, duration || TOAST_DEFAULT_DURATION_MS);
   }
   NDMap.showToast = showToast;
 
   // ---- Building styling ----------------------------------------------
 
+  // Brand colors — must match --navy (#002c61) and --navy-mid / --accent-blue
+  // (#005cab) in css/app.css. Kept as JS constants rather than read from CSS
+  // custom properties because Leaflet vector layer styles need plain color
+  // strings, not var() references.
+  var COLOR_NAVY = '#002c61';
+  var COLOR_UNI_BLUE = '#005cab';
+
   function baseStyle(feature) {
     if (feature.properties.kind === 'courtyard') {
       return {
-        color: '#005cab',
+        color: COLOR_UNI_BLUE,
         weight: 1,
         opacity: 1,
         fillColor: '#69b3e3',
@@ -97,10 +116,10 @@
       };
     }
     return {
-      color: '#002c61',
+      color: COLOR_NAVY,
       weight: 1,
       opacity: 1,
-      fillColor: '#005cab',
+      fillColor: COLOR_UNI_BLUE,
       fillOpacity: 0.92
     };
   }
@@ -110,7 +129,7 @@
   // beige context layer.
   function highlightStyle(feature) {
     return {
-      color: '#002c61',
+      color: COLOR_NAVY,
       weight: 2,
       opacity: 1,
       fillColor: '#ffc72c',
@@ -132,6 +151,8 @@
 
   // ---- Highlight / selection API (used by panel.js & search.js) ------
 
+  // Restores the currently-selected building (NDMap.selectedRef, if any) to
+  // its normal style and clears the selection. No-op if nothing is selected.
   NDMap.clearHighlight = function () {
     if (!NDMap.selectedRef) return;
     var entry = NDMap.buildingsById[NDMap.selectedRef];
@@ -143,6 +164,9 @@
     NDMap.selectedRef = null;
   };
 
+  // Clears any existing highlight, then applies the gold highlight style to
+  // the building with the given `ref` (a no-op if `ref` isn't known) and
+  // records it as NDMap.selectedRef.
   NDMap.highlightBuilding = function (ref) {
     NDMap.clearHighlight();
     var entry = NDMap.buildingsById[ref];

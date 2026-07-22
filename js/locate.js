@@ -9,8 +9,15 @@
 (function () {
   'use strict';
 
+  if (!window.NDMap) {
+    throw new Error('NDMap missing: js/app.js must load before js/locate.js');
+  }
   var NDMap = window.NDMap;
   var map = NDMap.map;
+
+  // watchPosition options (see startWatching below).
+  var GEO_MAX_AGE_MS = 5000;
+  var GEO_TIMEOUT_MS = 15000;
 
   var watching = false;
   var following = false;
@@ -144,8 +151,8 @@
     updateButtonVisual();
     watchId = navigator.geolocation.watchPosition(onPosition, onError, {
       enableHighAccuracy: true,
-      maximumAge: 5000,
-      timeout: 15000
+      maximumAge: GEO_MAX_AGE_MS,
+      timeout: GEO_TIMEOUT_MS
     });
   }
 
