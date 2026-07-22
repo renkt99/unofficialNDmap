@@ -14,4 +14,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Check committed geojson is up to date
+        run: |
+          node scripts/build-geojson.mjs
+          git diff --exit-code data/
       - run: node scripts/validate-data.mjs
