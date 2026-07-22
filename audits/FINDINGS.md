@@ -617,7 +617,7 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### BLD-003 — Stop publishing raw snapshots and reference PDFs to the public site
 
-- **Status:** open · **Severity:** med · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** med · **Date:** 2026-07-22
 - **Location:** `.github/workflows/pages.yml` (`upload-pages-artifact` `path: .`)
 - **Problem:** The Pages artifact is the whole repo, so
   `data/footprints-raw.json` (392K), `data/pois-raw.json` (44K), and both
@@ -625,12 +625,10 @@ Every `open` entry is written to be handed off as-is by its ID:
   republished verbatim at the public site URL even though the app only fetches
   `data/*.geojson`. The PDFs are the main concern — redistributing them was
   never a deliberate decision.
-- **Goal:** In `pages.yml`, stage a filtered build dir (copy `index.html`,
-  `.nojekyll`, `css/`, `js/`, `vendor/`, and `data/*.geojson` only) and point
-  `upload-pages-artifact`'s `path:` at it; verify the deployed site still loads
-  and that `<site>/reference/fremantle-campus-map-2025-11.pdf` returns 404.
-- **Done when:** Deploy run green, map loads at the published URL, and the raw
-  JSON + PDF URLs 404.
+- **Resolution:** pages.yml now stages `index.html`, `.nojekyll`, `css/`,
+  `js/`, `vendor/`, and `data/*.geojson` into a `_site/` dir and uploads that
+  as the Pages artifact; deploy verified green with the map loading and the
+  reference-PDF / raw-JSON URLs returning 404 (this PR).
 
 ### BLD-004 — Add a LICENSE file for the project's own code
 
