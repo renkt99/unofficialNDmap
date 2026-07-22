@@ -95,17 +95,21 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### COR-001 — Render the P&O Hotel (ND5) courtyard hole instead of dropping it
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `scripts/build-geojson.mjs` `geometryFor()` (relation branch)
 - **Problem:** Multipolygon relations keep only `outer` members; OSM relation
   17256639 (ND5, P&O Hotel) has one `inner` ring, so the building renders as a
   solid polygon with its courtyard filled in. Cosmetic, but silently wrong for
   any future relation with holes.
-- **Goal:** In `geometryFor()`, append `inner` member rings as additional rings
-  of the containing polygon (GeoJSON Polygon ring 2+ = holes), or at minimum
-  `console.warn` when inner members are dropped. Regenerate buildings.geojson.
-- **Done when:** ND5 renders with its courtyard cut out on the deployed map and
-  a unit test covers a relation with an inner ring.
+- **Resolution:** `geometryFor()` now assigns each `inner` member as an
+  additional ring of its containing outer shell — directly for the
+  single-outer case, or via a small even-odd `pointInRing()` test against the
+  inner's first vertex when the relation is a MultiPolygon (2+ outers).
+  Regenerated `data/context-buildings.geojson` (relation 17256639 is a context
+  building, not a curated one — only that one feature changed, gaining one
+  closed 5-point hole ring; outer ring and all 213 other features byte-
+  identical). Verified headless: zero console/page errors, 40 curated
+  buildings still load (this PR).
 
 ### COR-002 — Keep the locate button visual in sync with actual tracking state
 
@@ -145,31 +149,34 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### COR-004 — Fail loudly when a relation's outer member lacks geometry
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `scripts/build-geojson.mjs:33-34` (`geometryFor()`)
 - **Problem:** `.filter((m) => m.role === 'outer' && m.geometry)` silently
   drops outer members without a resolved `geometry`; as long as one outer
   survives, the `!outers.length` throw never fires and a partial, wrong-shaped
   footprint is built with no warning. Distinct from COR-001 (inner rings).
-- **Goal:** Compare the filtered count against the total `role === 'outer'`
-  member count and throw (or at least `console.warn` with the relation id) on
-  mismatch.
-- **Done when:** A test fixture relation with one geometry-less outer member
-  makes the build fail (or warn) instead of silently emitting a partial
-  polygon.
+- **Resolution:** `geometryFor()` now compares the geometry-filtered `outer`
+  count against the total `role === 'outer'` member count and throws (naming
+  the relation id and the missing/total counts) on any mismatch — a throwing
+  curated building fails the build as intended; the context-buildings loop
+  already try/catches per element, so a throwing context relation is skipped
+  as before. The same before/after count is applied to `inner` members, but
+  only `console.warn`s on mismatch since a missing hole is cosmetic (this PR).
 
 ### COR-005 — Count and report POIs dropped by the build-time bounds filter
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `scripts/build-geojson.mjs:225` (POI loop `continue`)
 - **Problem:** Out-of-bounds POIs are dropped with a bare `continue`; a
   misconfigured or bad Overpass fetch could zero out most POIs with the only
   signal being a lower feature count in the final console line.
-- **Goal:** Track a dropped counter and print it in the summary line; warn
-  loudly (non-zero exit is optional) when the dropped share exceeds, say, half
-  of the fetched POIs.
-- **Done when:** Running the build against a snapshot with mostly
-  out-of-bounds POIs prints an explicit dropped-count warning.
+- **Resolution:** The POI loop now counts POIs dropped by the bounds filter
+  and reports it in the summary line (e.g. "Wrote data/pois.geojson (22
+  features, 83 dropped outside bounds)" — the raw snapshot intentionally
+  covers a wider bbox than `BOUNDS`, per `scripts/fetch-footprints.mjs`'s
+  documented behavior, so a large drop count here is expected, not a bug);
+  `console.warn`s loudly when the dropped share reaches 90% — above the ~80%
+  a healthy build produces, so the warning stays meaningful (this PR).
 
 ### COR-006 — Validate POI properties and ring closure in validate-data.mjs
 

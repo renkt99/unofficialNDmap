@@ -108,7 +108,8 @@ test('geometryFor: a relation with 2+ outer members produces a MultiPolygon', ()
         ],
       },
       {
-        // inner members are ignored entirely (COR-001), not counted as outers
+        // an inner ring here is assigned as a hole of whichever outer
+        // contains it (COR-001); it is never counted as an outer itself
         type: 'way',
         role: 'inner',
         geometry: [
@@ -123,6 +124,118 @@ test('geometryFor: a relation with 2+ outer members produces a MultiPolygon', ()
   const geometry = geometryFor(relation);
   assert.equal(geometry.type, 'MultiPolygon');
   assert.equal(geometry.coordinates.length, 2);
+});
+
+test('geometryFor: a relation with one outer and one inner produces a Polygon with a closed hole ring', () => {
+  const relation = {
+    type: 'relation',
+    id: 5,
+    members: [
+      {
+        type: 'way',
+        role: 'outer',
+        geometry: [
+          { lat: 0, lon: 0 },
+          { lat: 0, lon: 10 },
+          { lat: 10, lon: 10 },
+          { lat: 10, lon: 0 },
+          { lat: 0, lon: 0 },
+        ],
+      },
+      {
+        type: 'way',
+        role: 'inner',
+        geometry: [
+          { lat: 2, lon: 2 },
+          { lat: 2, lon: 4 },
+          { lat: 4, lon: 4 },
+          { lat: 4, lon: 2 },
+        ], // deliberately unclosed
+      },
+    ],
+  };
+  const geometry = geometryFor(relation);
+  assert.equal(geometry.type, 'Polygon');
+  assert.equal(geometry.coordinates.length, 2);
+  const hole = geometry.coordinates[1];
+  assert.deepEqual(hole[0], hole[hole.length - 1]);
+  assert.deepEqual(hole, [
+    [2, 2],
+    [4, 2],
+    [4, 4],
+    [2, 4],
+    [2, 2],
+  ]);
+});
+
+test('geometryFor: a relation with 2 outers and 1 inner puts the hole in the containing outer only', () => {
+  const relation = {
+    type: 'relation',
+    id: 6,
+    members: [
+      {
+        type: 'way',
+        role: 'outer',
+        geometry: [
+          { lat: 0, lon: 0 },
+          { lat: 0, lon: 1 },
+          { lat: 1, lon: 1 },
+          { lat: 1, lon: 0 },
+          { lat: 0, lon: 0 },
+        ],
+      },
+      {
+        type: 'way',
+        role: 'outer',
+        geometry: [
+          { lat: 10, lon: 10 },
+          { lat: 10, lon: 11 },
+          { lat: 11, lon: 11 },
+          { lat: 11, lon: 10 },
+          { lat: 10, lon: 10 },
+        ],
+      },
+      {
+        // squarely inside the second outer's bbox (10-11, 10-11), nowhere
+        // near the first outer (0-1, 0-1) — unambiguous containment
+        type: 'way',
+        role: 'inner',
+        geometry: [
+          { lat: 10.2, lon: 10.2 },
+          { lat: 10.2, lon: 10.4 },
+          { lat: 10.4, lon: 10.4 },
+          { lat: 10.4, lon: 10.2 },
+          { lat: 10.2, lon: 10.2 },
+        ],
+      },
+    ],
+  };
+  const geometry = geometryFor(relation);
+  assert.equal(geometry.type, 'MultiPolygon');
+  assert.equal(geometry.coordinates.length, 2);
+  assert.equal(geometry.coordinates[0].length, 1); // first outer: no hole
+  assert.equal(geometry.coordinates[1].length, 2); // second outer: got the hole
+});
+
+test('geometryFor: a relation with a geometry-less outer member throws, even if another outer has geometry', () => {
+  const relation = {
+    type: 'relation',
+    id: 7,
+    members: [
+      {
+        type: 'way',
+        role: 'outer',
+        geometry: [
+          { lat: 0, lon: 0 },
+          { lat: 0, lon: 1 },
+          { lat: 1, lon: 1 },
+          { lat: 0, lon: 0 },
+        ],
+      },
+      { type: 'way', role: 'outer' }, // no geometry
+    ],
+  };
+  assert.throws(() => geometryFor(relation), /relation\/7: 1 of 2 outer members are missing geometry/);
 });
 
 test('geometryFor: a relation with zero outer members with geometry throws', () => {
