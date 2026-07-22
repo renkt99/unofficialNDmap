@@ -14,6 +14,7 @@ This is an unofficial project, not affiliated with or endorsed by the University
 - **Building detail panel** — tap a building to see full details
 - **Parking and bus stop markers** — other campus amenities (the free Fremantle CAT bus shown on the official PDF was discontinued in 2023, so regular Transperth stops are shown instead)
 - **Map locked to the campus area** — navigation constrained to Fremantle West End
+- **Keyboard access via search** — building footprints on the map are pointer-only by design (Leaflet vector shapes aren't focusable); the search box is the designated keyboard path: it is a full ARIA combobox, and every building and facility is reachable by typing and arrowing through the results
 
 ## Running Locally
 
