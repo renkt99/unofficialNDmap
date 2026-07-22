@@ -28,18 +28,8 @@
     iconAnchor: [9, 9]
   });
 
-  // ---- toast ------------------------------------------------------------
-
-  var toastEl = document.getElementById('toast');
-  var toastTimer = null;
-  function showToast(message, duration) {
-    toastEl.textContent = message;
-    toastEl.classList.remove('hidden');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () {
-      toastEl.classList.add('hidden');
-    }, duration || 4000);
-  }
+  // showToast lives in app.js (NDMap.showToast) since app.js loads first.
+  var showToast = NDMap.showToast;
 
   // ---- button -------------------------------------------------------------
 

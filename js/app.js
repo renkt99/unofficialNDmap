@@ -67,6 +67,23 @@
   }
   NDMap.escapeHtml = escapeHtml;
 
+  // ---- toast --------------------------------------------------------------
+  // Shared here (rather than locate.js, its original home) since app.js
+  // loads first and other modules — the buildings-load failure path below,
+  // locate.js — all need it.
+
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function showToast(message, duration) {
+    toastEl.textContent = message;
+    toastEl.classList.remove('hidden');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      toastEl.classList.add('hidden');
+    }, duration || 4000);
+  }
+  NDMap.showToast = showToast;
+
   // ---- Building styling ----------------------------------------------
 
   function baseStyle(feature) {
@@ -192,6 +209,7 @@
     })
     .catch(function (err) {
       console.error('Failed to load buildings.geojson', err);
+      showToast("Couldn't load building data — try reloading");
       return null;
     });
 
