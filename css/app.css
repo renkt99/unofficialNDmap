@@ -106,6 +106,13 @@ body {
   display: none;
 }
 
+/* Ref pills are zoom-gated: js/app.js toggles this class on the map
+   container below LABEL_MIN_ZOOM (17), where all 40 pills collide into an
+   unreadable pile on phone viewports (UX-009). */
+.hide-building-labels .leaflet-tooltip.building-label {
+  display: none;
+}
+
 /* ---------------------------------------------------------------- */
 /* POI markers                                                       */
 /* ---------------------------------------------------------------- */
