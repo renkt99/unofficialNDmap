@@ -80,15 +80,21 @@ body {
 /* Building labels                                                   */
 /* ---------------------------------------------------------------- */
 
+/* Solid chip background rather than white-text-on-fill: white text over the
+   light courtyard fill (#69b3e3, js/app.js baseStyle) computed to ~2.29:1,
+   well under WCAG AA's 4.5:1 for 11px text — the text-shadow halo alone
+   wasn't a guaranteed-contrast mechanism. An opaque chip makes contrast
+   fill-independent everywhere (courtyards, beige context buildings, blue
+   buildings), not just a courtyard-specific patch. */
 .leaflet-tooltip.building-label {
   pointer-events: none;
-  background: none;
+  background: var(--navy);
   color: #ffffff;
   border: none;
-  border-radius: 0;
+  border-radius: 3px;
   box-shadow: none;
-  padding: 0;
-  text-shadow: 0 0 3px rgba(0, 44, 97, 0.9);
+  padding: 1px 4px;
+  text-shadow: none;
   font-size: 11px;
   font-weight: 700;
   line-height: 1.3;
@@ -141,9 +147,19 @@ body {
   position: absolute;
   z-index: 1200;
   top: calc(10px + var(--safe-top));
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(420px, calc(100% - 24px - var(--safe-left) - var(--safe-right)));
+  left: calc(12px + var(--safe-left));
+  /* Reserve room for the top-right Leaflet controls (info "i" + layers
+     toggle, ~34px wide with their 10px corner margin) so the search bar
+     can't cover them — at narrow widths, centering it via
+     left:50%/translateX(-50%) let its right edge fully overlap the info
+     control, hiding it and swallowing taps meant for it (confirmed via
+     headless measurement at 390px: the info control's rect sat entirely
+     inside the search input's rect). Anchoring left instead of centering
+     keeps the bar at very nearly its old width (only the right edge moves
+     in, from a 12px margin to 54px). */
+  right: calc(54px + var(--safe-right));
+  width: auto;
+  max-width: 420px;
 }
 
 /* Must match DESKTOP_MIN_WIDTH in js/app.js and js/search.js. */
@@ -237,6 +253,18 @@ body {
   line-height: 1;
   cursor: pointer;
   z-index: 2;
+}
+
+/* Expand the tappable area to >=44x44 (WCAG 2.5.5 / HIG) without growing the
+   visible 30x30 button — an invisible ::after extends the hit area; clicks
+   anywhere in it resolve to the button itself. */
+#panel-close::after {
+  content: '';
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  bottom: -7px;
+  left: -7px;
 }
 
 #panel-content {
@@ -352,6 +380,19 @@ body {
   cursor: pointer;
 }
 
+/* Expand the tappable area to >=44x44 without growing the visible 40x40
+   circle — see #panel-close::after above for the same technique. There's
+   ~26px of clearance to the zoom control below at default bottom offsets,
+   comfortably more than the 3px this adds per side. */
+#locate-btn::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  bottom: -3px;
+  left: -3px;
+}
+
 #locate-btn.active {
   color: var(--accent-blue);
 }
@@ -429,6 +470,7 @@ body {
 /* ---------------------------------------------------------------- */
 
 .ndmap-info-control a {
+  position: relative;
   width: 30px;
   height: 30px;
   line-height: 30px;
@@ -439,6 +481,16 @@ body {
   color: var(--navy);
   text-decoration: none;
   display: block;
+}
+
+/* Expand the tappable area to >=44x44 — see #panel-close::after above. */
+.ndmap-info-control a::after {
+  content: '';
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  bottom: -7px;
+  left: -7px;
 }
 
 #info-modal-backdrop {
@@ -487,6 +539,16 @@ body {
   cursor: pointer;
 }
 
+/* Expand the tappable area to >=44x44 — see #panel-close::after above. */
+#info-modal-close::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  bottom: -8px;
+  left: -8px;
+}
+
 /* ---------------------------------------------------------------- */
 /* Leaflet control tweaks                                            */
 /* ---------------------------------------------------------------- */
@@ -494,6 +556,43 @@ body {
 .leaflet-control-layers,
 .leaflet-bar a {
   color: var(--navy);
+}
+
+/* Attribution (bottomleft, see js/app.js) — a licence requirement, so it
+   needs the same safe-area handling as other bottom-anchored elements
+   (#toast, #locate-btn), plus:
+   - a z-index above the mobile bottom sheet (#detail-panel, 1300) /
+     backdrop (#panel-backdrop, 1250) so it stays visible (composited over
+     the sheet) when it's open, since the sheet is full-width and there's no
+     bottom corner that escapes it;
+   - on desktop, a fixed left margin clearing the 320px side panel — applied
+     unconditionally (not just while the panel is open) so it doesn't need
+     to track panel open/close state via JS.
+   Previously bottomleft had no safe-area padding at all and was fully
+   covered by the desktop panel whenever it was open. */
+.leaflet-control-attribution {
+  z-index: 1350;
+  margin-left: calc(10px + var(--safe-left)) !important;
+  margin-bottom: calc(10px + var(--safe-bottom)) !important;
+}
+
+/* Must match DESKTOP_MIN_WIDTH in js/app.js and js/search.js. */
+@media (min-width: 768px) {
+  .leaflet-control-attribution {
+    margin-left: calc(330px + var(--safe-left)) !important;
+  }
+}
+
+/* Mobile: the detail panel becomes a full-width bottom sheet (45% height,
+   css/app.css #detail-panel), so there's no bottom corner the z-index trick
+   above can rely on being spatially clear of it. While the sheet is open,
+   lift the attribution above it instead — :has() lets this react purely in
+   CSS to the sheet's .open class (added/removed by js/panel.js) with no
+   extra JS coupling needed. Must match #detail-panel's 45% height. */
+@media (max-width: 767px) {
+  body:has(#detail-panel.open) .leaflet-control-attribution {
+    margin-bottom: calc(45vh + 14px + var(--safe-bottom)) !important;
+  }
 }
 
 /* ---------------------------------------------------------------- */

@@ -620,7 +620,7 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### UX-006 — Fix ref-pill contrast over courtyard fills (ND2, ND15)
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `js/app.js:72-89` (courtyard `fillColor: '#69b3e3'`);
   `css/app.css:80-94` (`.building-label`, white text, no background)
 - **Problem:** White label text over the courtyard fill computes to 2.29:1
@@ -630,10 +630,16 @@ Every `open` entry is written to be handed off as-is by its ID:
   give the pill a solid background chip so contrast is fill-independent.
 - **Done when:** Computed contrast for courtyard labels ≥ 4.5:1; verified in a
   headless-browser screenshot.
+- **Resolution:** Gave `.building-label` a solid navy chip background
+  (`var(--navy)`, white text, 3px radius, 1px/4px padding) instead of bare
+  white text on a text-shadow halo — fill-independent everywhere (courtyards,
+  beige context buildings, blue buildings alike). Computed contrast for both
+  ND2 and ND15 is 13.7:1. Verified acceptable-looking (not cluttered) at
+  default zoom in a headless screenshot (this PR).
 
 ### UX-007 — Enlarge undersized touch targets to ≥44px
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `css/app.css`: `#locate-btn` 40×40 (334-335), `#panel-close`
   30×30 (225-226), `.ndmap-info-control a` 30×30 (423-426),
   `#info-modal-close` 28×28 (471-472)
@@ -643,10 +649,24 @@ Every `open` entry is written to be handed off as-is by its ID:
   pseudo-element is fine; visual glyph can stay small).
 - **Done when:** Each control's effective hit area measures ≥44×44 in
   devtools; layout unchanged visually.
+- **Resolution:** Added an invisible `::after` overlay to each control
+  (`#locate-btn` -3px/side → 46×46, `#panel-close` -7px/side → 44×44,
+  `.ndmap-info-control a` -7px/side → 44×44, `#info-modal-close` -8px/side →
+  44×44) — visible glyph size unchanged, verified ≥44×44 via
+  `getBoundingClientRect` at 390×780. Also investigated the reported 390px
+  mis-targeting: confirmed real — `#search-container`'s width formula
+  (centered, `100% - 24px`) let the search input's opaque box fully cover the
+  info control's 30×30 rect at that width (measured, and a tap at the info
+  control's center hit the search input instead). Fixed by anchoring
+  `#search-container` to the left edge instead of centering and reserving
+  54px on the right for the top-right Leaflet control column, so it can no
+  longer reach that corner. Re-verified: no rect overlap, and real
+  pointer-coordinate taps on the locate button, panel-close, info control,
+  and info-modal-close all now trigger their actions at 390×780 (this PR).
 
 ### UX-008 — Keep the attribution control visible and inside the safe area
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `js/app.js:49` (`setPosition('bottomleft')`); `css/app.css`
   (no `.leaflet-control-attribution` styling; desktop `#detail-panel`
   z-index 1300 overlays the bottom-left corner when open)
@@ -657,6 +677,19 @@ Every `open` entry is written to be handed off as-is by its ID:
   it (e.g. bottomright) or raise it so an open desktop panel can't obscure it.
 - **Done when:** Attribution is visible with the panel open at desktop widths
   and clears the home-indicator inset on phones.
+- **Resolution:** Tried bottomright first and rejected it: `#locate-btn`
+  shares that corner's z-index (1000) with the Leaflet control stack but is
+  later in DOM order, so it painted over the attribution text with no clean
+  fix short of retuning `#locate-btn`'s pixel offsets. Kept bottomleft;
+  instead gave `.leaflet-control-attribution` safe-area-inset margins (like
+  `#toast`/`#locate-btn`), a permanent `margin-left: 330px` at the desktop
+  breakpoint clearing the 320px side panel regardless of open/closed state,
+  and `z-index: 1350`. On mobile the full-width bottom sheet has no corner to
+  escape to, so added a `body:has(#detail-panel.open) .leaflet-control-attribution`
+  rule that lifts it by `45vh` (matching the sheet's height) while the sheet
+  is open — verified no rect intersection with the panel/sheet at either
+  desktop or mobile widths, both open and closed, screenshots confirm it
+  reads clearly in both states (this PR).
 
 ### UX-009 — Assess ref-pill clutter at low zoom on a phone viewport
 
