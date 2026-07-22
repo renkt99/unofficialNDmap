@@ -331,6 +331,23 @@
         if (lp && tooltip) tooltip.setLatLng([lp[1], lp[0]]);
       });
 
+      // Zoom-gate the ref pills: at minZoom 16 all 40 labels collide into an
+      // unreadable pile in the dense campus core (UX-009 screenshots), so
+      // they only render from LABEL_MIN_ZOOM up. CSS does the hiding via a
+      // class on the map container — cheaper than opening/closing 40
+      // permanent tooltips on every zoom.
+      var LABEL_MIN_ZOOM = 17;
+      function updateLabelVisibility() {
+        var el = map.getContainer();
+        if (map.getZoom() < LABEL_MIN_ZOOM) {
+          L.DomUtil.addClass(el, 'hide-building-labels');
+        } else {
+          L.DomUtil.removeClass(el, 'hide-building-labels');
+        }
+      }
+      map.on('zoomend', updateLabelVisibility);
+      updateLabelVisibility();
+
       document.dispatchEvent(new CustomEvent('ndmap:buildings-ready', { detail: buildingsData }));
     }
 

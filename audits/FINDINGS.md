@@ -693,16 +693,18 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### UX-009 — Assess ref-pill clutter at low zoom on a phone viewport
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
 - **Location:** `js/app.js:250-256` (permanent tooltips bound
   unconditionally); `minZoom: 16`, default `zoom: 17` (`js/app.js:20-24`)
 - **Problem:** All 40 ref pills render simultaneously at every zoom level
   (the old zoom-gating was removed with name labels); whether they collide
   unreadably at minZoom 16 on a phone hasn't been visually verified.
-- **Goal:** Screenshot the map at zoom 16/17 in a mobile-sized headless
-  Chromium viewport; if pills collide in the dense blocks, zoom-gate or thin
-  them below zoom 17, otherwise flip this entry to wontfix with the
-  screenshot as evidence.
+- **Resolution:** Verified with 390×780 headless screenshots: at zoom 16 the
+  campus-core pills collapse into an unreadable pile (zoom 17 is moderate
+  but readable, 18 clean), so the pills are now zoom-gated — a `zoomend`
+  handler toggles `hide-building-labels` on the map container below
+  `LABEL_MIN_ZOOM = 17` and CSS hides the tooltips; the default zoom (17)
+  still shows them on load (this PR).
 - **Done when:** A documented decision backed by screenshots, and (if needed)
   zoom-gating shipped.
 
