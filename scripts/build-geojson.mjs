@@ -19,15 +19,54 @@ export function ringFromGeometry(geometry) {
   return ring;
 }
 
+// Even-odd point-in-ring test for [lon, lat] points against a closed ring of
+// [lon, lat] pairs. Used only to decide which outer shell an inner (hole)
+// ring belongs to for MultiPolygon relations.
+function pointInRing([x, y], ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
 export function geometryFor(el) {
   if (el.type === 'way') {
     return { type: 'Polygon', coordinates: [ringFromGeometry(el.geometry)] };
   }
-  // Multipolygon relation: treat each outer member as a polygon shell.
-  // (Sufficient for the buildings used here; inner holes are ignored.)
-  const outers = (el.members || []).filter((m) => m.role === 'outer' && m.geometry);
+  // Multipolygon relation: each outer member is a polygon shell; inner
+  // members become holes (additional rings) of the outer shell that
+  // contains them.
+  const members = el.members || [];
+  const allOuters = members.filter((m) => m.role === 'outer');
+  const outers = allOuters.filter((m) => m.geometry);
   if (!outers.length) throw new Error(`relation/${el.id} has no outer members with geometry`);
+  if (outers.length !== allOuters.length) {
+    throw new Error(
+      `relation/${el.id}: ${allOuters.length - outers.length} of ${allOuters.length} outer members are missing geometry`,
+    );
+  }
+
+  const allInners = members.filter((m) => m.role === 'inner');
+  const inners = allInners.filter((m) => m.geometry);
+  if (inners.length !== allInners.length) {
+    console.warn(
+      `relation/${el.id}: ${allInners.length - inners.length} of ${allInners.length} inner members are missing geometry (hole dropped)`,
+    );
+  }
+
   const polys = outers.map((m) => [ringFromGeometry(m.geometry)]);
+  for (const inner of inners) {
+    const innerRing = ringFromGeometry(inner.geometry);
+    const target =
+      polys.length === 1 ? polys[0] : (polys.find((poly) => pointInRing(innerRing[0], poly[0])) ?? polys[0]);
+    target.push(innerRing);
+  }
+
   return polys.length === 1
     ? { type: 'Polygon', coordinates: polys[0] }
     : { type: 'MultiPolygon', coordinates: polys };
@@ -224,6 +263,7 @@ function main() {
   // --- POIs ---
   const poisRaw = JSON.parse(readFileSync(dataDir('pois-raw.json'), 'utf8'));
   const poiFeatures = [];
+  let droppedOutsideBounds = 0;
   for (const el of poisRaw.elements) {
     const t = el.tags || {};
     const kind = kindForTags(t);
@@ -235,7 +275,10 @@ function main() {
     if (lat == null || lon == null) continue;
     // Query bbox clips ways loosely; keep only POIs whose centre is inside the
     // campus bounds the map is locked to (must match validate-data.mjs).
-    if (lat < BOUNDS.south || lat > BOUNDS.north || lon < BOUNDS.west || lon > BOUNDS.east) continue;
+    if (lat < BOUNDS.south || lat > BOUNDS.north || lon < BOUNDS.west || lon > BOUNDS.east) {
+      droppedOutsideBounds++;
+      continue;
+    }
     poiFeatures.push({
       type: 'Feature',
       properties: { kind, name: t.name ?? null, osm: `${el.type}/${el.id}` },
@@ -246,7 +289,15 @@ function main() {
     dataDir('pois.geojson'),
     JSON.stringify({ type: 'FeatureCollection', _attribution: '© OpenStreetMap contributors (ODbL)', features: poiFeatures }),
   );
-  console.log(`Wrote data/pois.geojson (${poiFeatures.length} features)`);
+  console.log(`Wrote data/pois.geojson (${poiFeatures.length} features, ${droppedOutsideBounds} dropped outside bounds)`);
+  // fetch-footprints.mjs intentionally queries a wider bbox, so ~80% of raw
+  // POIs land outside BOUNDS on a healthy build — only warn well above that.
+  const droppedShare = droppedOutsideBounds / (droppedOutsideBounds + poiFeatures.length || 1);
+  if (droppedShare >= 0.9) {
+    console.warn(
+      `WARNING: dropped ${droppedOutsideBounds} of ${droppedOutsideBounds + poiFeatures.length} POIs outside BOUNDS — check pois-raw.json / bounds.mjs`,
+    );
+  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
