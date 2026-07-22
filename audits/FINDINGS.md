@@ -315,21 +315,25 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### TEST-001 — Add a node:test suite for build-geojson.mjs's geometry and merge logic
 
-- **Status:** open · **Severity:** med · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** med · **Date:** 2026-07-22
 - **Location:** `scripts/build-geojson.mjs` (`ringFromGeometry()`,
   `geometryFor()`, POI kind mapping, missing-osm-id error path); no test file
   exists anywhere in the repo
-- **Problem:** The only code that turns raw OSM data into rendered polygons
-  has zero automated coverage; regressions in ring closing, relation handling,
-  or POI kind mapping would ship silently. Fixing COR-001/COR-004 without
-  tests would leave them unguarded too.
-- **Goal:** Add `scripts/build-geojson.test.mjs` run via `node --test scripts/`
-  covering: ring already-closed vs needs-closing; relation with 2+ outer
-  members → MultiPolygon; relation with no outer geometry → throws; POI tag →
-  kind mapping incl. skip case (extract `kindForTags()` if needed); the
-  missing-osm-id throw. Add a `node --test scripts/` step to `ci.yml`.
-- **Done when:** `node --test scripts/` passes locally and in CI, and CI fails
-  when one of the covered branches is deliberately broken.
+- **Resolution:** `build-geojson.mjs` now exports its pure logic
+  (`ringFromGeometry`, `geometryFor`, `findOsmElement`, `kindForTags`) and
+  gates the file-reading/writing build behind `main()`, called only when the
+  script is run directly, so importing it for tests has no side effects (CLI
+  output/behavior unchanged, verified via a clean `git diff data/` after
+  rebuilding). `scripts/build-geojson.test.mjs` (`node:test` +
+  `node:assert/strict`) covers: closed-ring passthrough and open-ring closing;
+  way → Polygon; relation with one outer → Polygon; relation with 2+ outers →
+  MultiPolygon; relation with zero outers-with-geometry → throws;
+  `findOsmElement` found and not-found (missing-osm-id error) cases; and
+  `kindForTags` for `parking`/`bus_stop` plus a skipped tag set. `ci.yml` runs
+  `node --test "scripts/**/*.test.mjs"` after `validate-data.mjs` (note: a
+  bare `node --test scripts/` directory argument does not work on current
+  Node — it's parsed as a glob and fails with MODULE_NOT_FOUND — the glob
+  pattern form is required) (this PR).
 
 ### TEST-002 — Self-test that validate-data.mjs actually fails on bad fixtures
 
