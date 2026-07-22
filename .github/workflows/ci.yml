@@ -19,3 +19,4 @@ jobs:
           node scripts/build-geojson.mjs
           git diff --exit-code data/
       - run: node scripts/validate-data.mjs
+      - run: node --test "scripts/**/*.test.mjs"
