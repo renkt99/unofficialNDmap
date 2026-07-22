@@ -209,7 +209,7 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### COR-007 — Cancel the pending search pan when the user types again
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-21
 - **Location:** `js/search.js:129` (250ms `setTimeout` pan) vs the debounced
   input handler (`js/search.js:143-150`)
 - **Problem:** Retyping within 250ms of tapping a result can reopen the
@@ -221,10 +221,26 @@ Every `open` entry is written to be handed off as-is by its ID:
 - **Done when:** Tapping a result then immediately typing never pans using
   stale layout — verified manually with the dropdown reopened during the
   delay.
+- **Resolution:** Stored the pan `setTimeout` id in a module-level `panTimer`
+  var; `clearTimeout(panTimer)` now runs at the top of the input handler (the
+  moment the user resumes typing) and in the Escape branch of the keydown
+  handler. Deliberately *not* added inside `clearResults()`: `selectResult()`
+  calls `clearResults()` itself right before scheduling the pan, and clearing
+  results resets `resultsEl.innerHTML`, detaching the just-clicked
+  `.search-result` element from the document mid-bubble — the document-level
+  "click outside `#search-container`" listener then sees a detached
+  `e.target`, misreads it as an outside click, and re-enters `clearResults()`
+  later in the same click event, which would immediately cancel the pan that
+  was just scheduled for a completely normal selection (caught by testing:
+  `clearTimeout` was observed firing on the pan timer's id right after it was
+  created, and the map never panned). Also left the outside-click handler
+  itself unchanged for the same reason — clicking outside the search UI
+  doesn't change the input box position or panel size, so it can't make a
+  pending pan's measured layout stale (this PR).
 
 ### COR-008 — Measure the panel/sheet size instead of hardcoding 320px / 55%
 
-- **Status:** open · **Severity:** low · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-21
 - **Location:** `js/search.js:134-135`; duplicates `css/app.css:306`
   (`width: 320px`) and `css/app.css:282` (`height: 45%`)
 - **Problem:** The search pan-centering hardcodes the desktop panel width and
@@ -235,6 +251,15 @@ Every `open` entry is written to be handed off as-is by its ID:
   current constants only if the panel isn't in the DOM.
 - **Done when:** Changing the CSS panel width/height still centers search
   results correctly with no JS edit.
+- **Resolution:** Pan-time measurement now reads `panelEl.offsetWidth` /
+  `panelEl.offsetHeight` instead of the 320/0.55 constants, falling back to
+  them only when `#detail-panel` is missing. Used `offsetWidth`/`offsetHeight`
+  rather than `getBoundingClientRect()` because the panel opens via a
+  `transform` transition (`css/app.css` `#detail-panel.open`), so its rect can
+  be mid-slide when the 250ms pan timer fires; `offsetWidth`/`offsetHeight`
+  give the untransformed box size regardless of transition progress, paired
+  with the panel's CSS-anchored side (left edge on desktop, bottom edge on
+  mobile) exactly as the original constants were (this PR).
 
 ## CQ — Code Quality
 
