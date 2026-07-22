@@ -349,16 +349,46 @@
   });
   map.addControl(new InfoControl());
 
+  var infoModalEl = document.getElementById('info-modal');
+  var infoModalBackdropEl = document.getElementById('info-modal-backdrop');
+  var infoModalCloseBtn = document.getElementById('info-modal-close');
+
+  // Element to return focus to on close (the info control's anchor) —
+  // captured only on the closed-to-open transition, same rationale as
+  // panel.js's previousFocus.
+  var infoPreviousFocus = null;
+
   function openInfoModal() {
-    document.getElementById('info-modal').classList.remove('hidden');
-    document.getElementById('info-modal-backdrop').classList.remove('hidden');
+    var wasOpen = !infoModalEl.classList.contains('hidden');
+    infoModalEl.classList.remove('hidden');
+    infoModalBackdropEl.classList.remove('hidden');
+    if (!wasOpen) infoPreviousFocus = document.activeElement;
+    // Deferred to the next tick for the same reason as panel.js's
+    // openPanel: the info control is a keyboard-focusable <a>, and moving
+    // focus to the close button synchronously within its Enter/Space
+    // activation would let that same keypress's keyup land on the button
+    // and self-trigger a click, instantly closing the modal.
+    setTimeout(function () {
+      if (infoModalCloseBtn.focus) infoModalCloseBtn.focus();
+    }, 0);
   }
   function closeInfoModal() {
-    document.getElementById('info-modal').classList.add('hidden');
-    document.getElementById('info-modal-backdrop').classList.add('hidden');
+    if (infoModalEl.classList.contains('hidden')) return;
+    infoModalEl.classList.add('hidden');
+    infoModalBackdropEl.classList.add('hidden');
+
+    var toFocus = infoPreviousFocus;
+    infoPreviousFocus = null;
+    if (toFocus && document.contains(toFocus) && toFocus.focus) {
+      try {
+        toFocus.focus();
+      } catch (err) {
+        /* not focusable — leave focus wherever the browser puts it */
+      }
+    }
   }
-  document.getElementById('info-modal-close').addEventListener('click', closeInfoModal);
-  document.getElementById('info-modal-backdrop').addEventListener('click', closeInfoModal);
+  infoModalCloseBtn.addEventListener('click', closeInfoModal);
+  infoModalBackdropEl.addEventListener('click', closeInfoModal);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') closeInfoModal();
   });

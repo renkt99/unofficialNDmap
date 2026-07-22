@@ -15,7 +15,7 @@
   <div id="search-results" class="hidden" role="listbox" aria-label="Search results"></div>
 </div>
 
-<div id="detail-panel" class="hidden">
+<div id="detail-panel" class="hidden" role="dialog" aria-labelledby="panel-title">
   <button id="panel-close" aria-label="Close">&times;</button>
   <div id="panel-content"></div>
 </div>
@@ -24,10 +24,10 @@
 
 <div id="toast" class="hidden"></div>
 
-<div id="info-modal" class="hidden">
+<div id="info-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="info-modal-label">
   <div id="info-modal-content">
     <button id="info-modal-close" aria-label="Close">&times;</button>
-    <p>Unofficial map — not affiliated with the University of Notre Dame Australia. Building data © OpenStreetMap contributors (ODbL). Locations marked approximate are unverified.</p>
+    <p id="info-modal-label">Unofficial map — not affiliated with the University of Notre Dame Australia. Building data © OpenStreetMap contributors (ODbL). Locations marked approximate are unverified.</p>
   </div>
 </div>
 <div id="info-modal-backdrop" class="hidden"></div>
