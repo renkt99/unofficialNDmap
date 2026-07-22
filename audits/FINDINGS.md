@@ -513,29 +513,23 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### UX-004 — Announce toast messages to screen readers
 
-- **Status:** open · **Severity:** med · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** med · **Date:** 2026-07-22
 - **Location:** `index.html:25` (`#toast`); `js/locate.js:33-41` (`showToast`)
 - **Problem:** The toast has no `role="status"`/`aria-live`, so geolocation
   feedback ("You're outside the campus area", permission errors) is never
   announced — a screen-reader user tapping locate gets silence.
-- **Goal:** Add `role="status" aria-live="polite" aria-atomic="true"` to the
-  toast element; `textContent` updates then announce automatically.
-- **Done when:** With a screen reader active, triggering any toast announces
-  its text.
+- **Resolution:** #toast now carries role="status" aria-live="polite" aria-atomic="true"; textContent updates announce automatically (this PR).
 
 ### UX-005 — Respect prefers-reduced-motion
 
-- **Status:** open · **Severity:** med · **Date:** 2026-07-21
+- **Status:** fixed · **Severity:** med · **Date:** 2026-07-22
 - **Location:** `css/app.css:385` (`.gps-dot-pulse` infinite 2s scale-to-3.2×
   animation); `css/app.css:285` (`#detail-panel` transform transition); no
   `prefers-reduced-motion` block exists anywhere
 - **Problem:** The persistently pulsing GPS marker runs unconditionally while
   tracking is active — no accommodation for vestibular-sensitive users
   (WCAG 2.3.3).
-- **Goal:** Add one `@media (prefers-reduced-motion: reduce)` block disabling
-  the gps-pulse animation and the panel slide transition.
-- **Done when:** With OS motion-reduction enabled, the GPS dot renders without
-  pulsing and the panel appears without sliding.
+- **Resolution:** Added a prefers-reduced-motion block disabling the GPS pulse animation and the panel slide transition (this PR).
 
 ### UX-006 — Fix ref-pill contrast over courtyard fills (ND2, ND15)
 
