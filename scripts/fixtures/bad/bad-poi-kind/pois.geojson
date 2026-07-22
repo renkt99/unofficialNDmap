@@ -1,0 +1,27 @@
+{
+  "type": "FeatureCollection",
+  "_attribution": "fixture data — not real",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "kind": "cafe", "name": "Test Stop", "osm": "node/1" },
+      "geometry": { "type": "Point", "coordinates": [115.7435, -32.0552] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "kind": "parking", "name": null, "osm": "way/2" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [115.7436, -32.0553],
+            [115.7437, -32.0553],
+            [115.7437, -32.0554],
+            [115.7436, -32.0554],
+            [115.7436, -32.0553]
+          ]
+        ]
+      }
+    }
+  ]
+}

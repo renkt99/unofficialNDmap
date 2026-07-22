@@ -1,0 +1,6 @@
+{
+  "_comment": "Minimal fixture set for validate-data.test.mjs — not the real data.",
+  "buildings": [
+    { "ref": "ND1", "name": "Test Building", "osm": "way/1", "confidence": "high", "contents": ["Test Room"] }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "type": "FeatureCollection",
+  "_attribution": "fixture data — not real",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "ref": "ND1",
+        "name": "Test Building",
+        "address": "1 Test Street",
+        "contents": ["Test Room"],
+        "confidence": "high",
+        "osm": "way/1",
+        "labelPoint": [115.7430, -32.0550]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [115.7430, -32.0550],
+            [115.7431, -32.0550],
+            [115.7431, -32.0551],
+            [115.7430, -32.0551],
+            [115.7430, -32.0550]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ref": "ND1",
+        "name": "Test Building Duplicate",
+        "address": "1 Test Street",
+        "contents": ["Test Room"],
+        "confidence": "high",
+        "osm": "way/2",
+        "labelPoint": [115.7432, -32.0550]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [115.7432, -32.0550],
+            [115.7433, -32.0550],
+            [115.7433, -32.0551],
+            [115.7432, -32.0551],
+            [115.7432, -32.0550]
+          ]
+        ]
+      }
+    }
+  ]
+}

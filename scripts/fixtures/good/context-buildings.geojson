@@ -1,0 +1,22 @@
+{
+  "type": "FeatureCollection",
+  "_attribution": "fixture data — not real",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [115.7440, -32.0555],
+            [115.7441, -32.0555],
+            [115.7441, -32.0556],
+            [115.7440, -32.0556],
+            [115.7440, -32.0555]
+          ]
+        ]
+      }
+    }
+  ]
+}
