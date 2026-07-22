@@ -1,8 +1,10 @@
 # unofficialNDmap
 
 Static Leaflet map of the Notre Dame Fremantle campus. No build step, no npm
-dependencies — plain HTML/CSS/JS served as-is (GitHub Pages branch build of
-`main`, site at https://renkt99.github.io/unofficialNDmap/, served under the
+dependencies — plain HTML/CSS/JS served as-is (deployed by
+`.github/workflows/pages.yml` on push to `main`, which stages only the app
+files — never the raw snapshots or `reference/` PDFs; site at
+https://renkt99.github.io/unofficialNDmap/, served under the
 `/unofficialNDmap/` subpath: all asset/data references must stay **relative**).
 
 - App: `index.html`, `css/app.css`, `js/{app,panel,locate,search}.js` — IIFEs
@@ -12,8 +14,10 @@ dependencies — plain HTML/CSS/JS served as-is (GitHub Pages branch build of
 - Data: `data/nd-buildings.json` is the hand-curated source of truth; never
   edit `data/buildings.geojson` / `data/pois.geojson` / `data/context-buildings.geojson` directly — regenerate
   with `node scripts/build-geojson.mjs` and check with
-  `node scripts/validate-data.mjs` (run this before every merge; there is no
-  CI gate yet — see BLD-001 in `audits/FINDINGS.md`).
+  `node scripts/validate-data.mjs`. CI (`.github/workflows/ci.yml`) gates
+  every PR: it fails on stale committed geojson, runs the validator, and runs
+  `node --test "scripts/**/*.test.mjs"`; branch protection on `main` requires
+  the `validate` check.
 - The campus bounds live in `scripts/bounds.mjs` (`BOUNDS`), imported by both
   `scripts/validate-data.mjs` and the POI filter in `scripts/build-geojson.mjs`,
   plus the `CAMPUS_BOUNDS` literal in `js/app.js` (which must be kept in sync
