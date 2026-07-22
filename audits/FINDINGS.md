@@ -103,6 +103,19 @@ Every `open` entry is written to be handed off as-is by its ID:
   visible in the modal content after opening it via the info control (this
   PR).
 
+### SEC-003 — Allow Leaflet's data:-URI error tile under the meta CSP
+
+- **Status:** fixed · **Severity:** low · **Date:** 2026-07-22
+- **Location:** `index.html` meta CSP `img-src` directive
+- **Problem:** Leaflet replaces failed tile images with a 1×1 `data:` URI GIF
+  (`L.TileLayer` `errorTileUrl` fallback / `_tileOnError` blank tile); the
+  SEC-001 policy's `img-src` lacked `data:`, so any failed CARTO tile request
+  produced a CSP violation and a broken-image tile instead of a blank one.
+  Found while testing COR-007/008 at high zoom with flaky tile responses.
+- **Resolution:** Added `data:` to `img-src` (safe: `data:` images cannot
+  execute script; scripts remain `'self'`-only). Verified headless that a
+  blocked tile request no longer emits a CSP violation (this PR).
+
 ## COR — Correctness
 
 ### COR-001 — Render the P&O Hotel (ND5) courtyard hole instead of dropping it
