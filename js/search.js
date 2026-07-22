@@ -14,6 +14,7 @@
 
   var index = [];
   var currentResults = [];
+  var activeIndex = -1;
 
   function buildIndex(data) {
     index = [];
@@ -69,16 +70,19 @@
   }
 
   function renderResults(results) {
+    activeIndex = -1;
+    inputEl.removeAttribute('aria-activedescendant');
     if (!results.length) {
       resultsEl.innerHTML = '';
       resultsEl.classList.add('hidden');
+      inputEl.setAttribute('aria-expanded', 'false');
       return;
     }
     var html = results
       .map(function (r, i) {
         var secondary = r.ref + (r.name ? ' · ' + r.name : '');
         return (
-          '<div class="search-result" data-index="' + i + '">' +
+          '<div class="search-result" id="search-option-' + i + '" role="option" aria-selected="false" data-index="' + i + '">' +
           '<div class="result-primary">' + escapeHtml(r.text) + '</div>' +
           '<div class="result-secondary">' + escapeHtml(secondary) + '</div>' +
           '</div>'
@@ -87,12 +91,35 @@
       .join('');
     resultsEl.innerHTML = html;
     resultsEl.classList.remove('hidden');
+    inputEl.setAttribute('aria-expanded', 'true');
+  }
+
+  function setActiveIndex(newIndex) {
+    var options = resultsEl.querySelectorAll('.search-result');
+    if (!options.length) return;
+    if (activeIndex >= 0 && options[activeIndex]) {
+      options[activeIndex].classList.remove('active');
+      options[activeIndex].setAttribute('aria-selected', 'false');
+    }
+    activeIndex = newIndex;
+    var active = options[activeIndex];
+    if (active) {
+      active.classList.add('active');
+      active.setAttribute('aria-selected', 'true');
+      inputEl.setAttribute('aria-activedescendant', active.id);
+      if (active.scrollIntoView) active.scrollIntoView({ block: 'nearest' });
+    } else {
+      inputEl.removeAttribute('aria-activedescendant');
+    }
   }
 
   function clearResults() {
     currentResults = [];
+    activeIndex = -1;
     resultsEl.innerHTML = '';
     resultsEl.classList.add('hidden');
+    inputEl.setAttribute('aria-expanded', 'false');
+    inputEl.removeAttribute('aria-activedescendant');
   }
 
   function selectResult(item) {
@@ -160,8 +187,21 @@
     if (e.key === 'Escape') {
       clearResults();
       inputEl.blur();
+    } else if (e.key === 'ArrowDown') {
+      if (!currentResults.length) return;
+      e.preventDefault();
+      var nextIndex = activeIndex < currentResults.length - 1 ? activeIndex + 1 : 0;
+      setActiveIndex(nextIndex);
+    } else if (e.key === 'ArrowUp') {
+      if (!currentResults.length) return;
+      e.preventDefault();
+      var prevIndex = activeIndex > 0 ? activeIndex - 1 : currentResults.length - 1;
+      setActiveIndex(prevIndex);
     } else if (e.key === 'Enter') {
-      if (currentResults.length) selectResult(currentResults[0]);
+      if (currentResults.length) {
+        var selectedIndex = activeIndex >= 0 ? activeIndex : 0;
+        selectResult(currentResults[selectedIndex]);
+      }
     }
   });
 

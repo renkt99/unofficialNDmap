@@ -11,8 +11,8 @@
 <div id="map"></div>
 
 <div id="search-container">
-  <input type="text" id="search-input" placeholder="Search buildings and rooms…" autocomplete="off">
-  <div id="search-results" class="hidden"></div>
+  <input type="text" id="search-input" placeholder="Search buildings and rooms…" autocomplete="off" aria-label="Search buildings and places" role="combobox" aria-expanded="false" aria-controls="search-results" aria-autocomplete="list">
+  <div id="search-results" class="hidden" role="listbox" aria-label="Search results"></div>
 </div>
 
 <div id="detail-panel" class="hidden">
