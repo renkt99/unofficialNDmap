@@ -69,10 +69,11 @@
     {
       "ref": "ND8",
       "name": "Holy Spirit Chapel",
-      "address": "Corner Mouat & Croke Streets",
+      "address": "38 Mouat Street",
       "osm": null,
-      "point": [-32.0565, 115.7439],
-      "confidence": "low",
+      "point": [-32.05655, 115.74383],
+      "confidence": "medium",
+      "note": "Fronts Mouat Street directly south of ND7 (38 Mouat St; the geographic 2015 official map shows it between ND7 and the Croke Street corner buildings). No separate OSM footprint.",
       "contents": ["Holy Spirit Chapel"]
     },
     {
@@ -80,17 +81,29 @@
       "name": "Chaplaincy & Manjaree",
       "address": "Off Bateman Courtyard",
       "osm": null,
-      "point": [-32.05645, 115.74395],
+      "point": [-32.0566, 115.7439],
       "confidence": "low",
-      "note": "Unnamed on the official map (listed as ND9).",
+      "note": "Unnamed on the official map (listed as ND9). No separate OSM footprint — stands south of the chapel; OSM merges this row into the ND13 footprint.",
       "contents": ["Chaplaincy", "Manjaree"]
+    },
+    {
+      "ref": "ND10",
+      "name": "Bateman Courtyard Toilets",
+      "address": "Off Bateman Courtyard",
+      "osm": null,
+      "point": [-32.05662, 115.74397],
+      "confidence": "low",
+      "note": "Printed on the official map (between ND9 and ND11, with a toilets icon) but absent from its legend. No separate OSM footprint.",
+      "contents": ["Toilets"]
     },
     {
       "ref": "ND11",
       "name": "School of Law & Business",
       "address": "Bateman Courtyard / Croke Street",
-      "osm": "way/164418329",
+      "osm": null,
+      "point": [-32.05659, 115.74407],
       "confidence": "low",
+      "note": "Stands between ND10 and ND13 on the south side of Bateman Courtyard; no separate OSM footprint (merged into the ND13 footprint). The footprint previously matched here (way/164418329) is actually the ND16/ND39 strip south of the library.",
       "contents": [
         "Lecture rooms",
         "ND Student Law Society & the ND Business Society"
@@ -109,8 +122,8 @@
       "name": "Craven Law Centre",
       "address": "Croke Street",
       "osm": "way/164418330",
-      "confidence": "low",
-      "note": "Unnamed on the official map (listed as ND13).",
+      "confidence": "medium",
+      "note": "Unnamed on the official map (listed as ND13). Footprint confirmed against the geographic 2015 official map (the large building fronting Croke Street); OSM merges the smaller ND9–ND11 row into it.",
       "contents": [
         "Classrooms",
         "Craven Law Centre",
@@ -125,6 +138,7 @@
       "address": "Corner Henry & Croke Streets",
       "osm": "way/164418322",
       "confidence": "medium",
+      "note": "The northern portion of this footprint is ND34.",
       "contents": ["School of Law & Business"]
     },
     {
@@ -132,7 +146,7 @@
       "name": "Bateman Courtyard",
       "address": "Off Mouat Street",
       "osm": null,
-      "point": [-32.0563, 115.7441],
+      "point": [-32.05648, 115.74412],
       "confidence": "medium",
       "kind": "courtyard",
       "contents": ["Courtyard"]
@@ -141,9 +155,9 @@
       "ref": "ND16",
       "name": "Celia Hammond Student Support Centre",
       "address": "Off Bateman Courtyard",
-      "osm": null,
-      "point": [-32.0564, 115.7442],
-      "confidence": "low",
+      "osm": "way/164418329",
+      "confidence": "medium",
+      "note": "Strip attached to the south side of the library, matching the official map's ND16 position; the Henry Street end of this footprint is ND39.",
       "contents": [
         "Student Success",
         "Indigenous Student Engagement and Success"
@@ -271,8 +285,9 @@
       "name": "School of Medicine",
       "address": "Henry Street",
       "osm": null,
-      "point": [-32.05625, 115.7444],
+      "point": [-32.0565, 115.74445],
       "confidence": "low",
+      "note": "No separate OSM footprint — occupies the northern portion of the ND14 footprint, directly north of ND14 (official map grid E5).",
       "contents": ["School of Medicine"]
     },
     {
@@ -317,11 +332,11 @@
     {
       "ref": "ND38",
       "name": "Physiotherapy Laboratory",
-      "address": "29 Henry Street",
+      "address": "29–31 Henry Street",
       "osm": null,
-      "point": [-32.056, 115.7442],
+      "point": [-32.056, 115.74433],
       "confidence": "low",
-      "note": "Unnamed on the official map (listed as ND38).",
+      "note": "Unnamed on the official map (listed as ND38). Southern (29–31 Henry St) portion of the terrace whose OSM footprint is matched to ND21.",
       "contents": ["Classroom", "Physiotherapy laboratory"]
     },
     {
@@ -329,8 +344,9 @@
       "name": "Celia Hammond Student Support Centre",
       "address": "45 Henry Street",
       "osm": null,
-      "point": [-32.05648, 115.74442],
-      "confidence": "low",
+      "point": [-32.05637, 115.7445],
+      "confidence": "medium",
+      "note": "Henry Street end of the strip south of the library whose OSM footprint is matched to ND16.",
       "contents": ["Student Life", "Library staff (level 2)"]
     },
     {
@@ -394,10 +410,10 @@
     {
       "ref": "ND48",
       "name": "Customs House",
-      "address": "Phillimore Street",
-      "osm": "way/142222969",
-      "confidence": "medium",
-      "note": "Matched to the OSM footprint named Fremantle Customs House; the official map's grid (A7) suggests a position nearer Pakenham Street — verify on the ground.",
+      "address": "7 Pakenham Street",
+      "osm": "way/142222981",
+      "confidence": "high",
+      "note": "The Pakenham Street building of the Customs House site (7 Pakenham St — matches the OSM addr and the official map's grid A7). The OSM way named 'Fremantle Customs House' is the western building of the site, now matched to ND50.",
       "contents": [
         "Campus Services",
         "Information Technology Office",
@@ -410,9 +426,11 @@
     {
       "ref": "ND49",
       "name": "Staff & Student Gym",
-      "address": "Phillimore / Pakenham Streets",
-      "osm": "way/142222981",
-      "confidence": "low",
+      "address": "41 Phillimore Street (Customs House)",
+      "osm": null,
+      "point": [-32.05445, 115.74403],
+      "confidence": "medium",
+      "note": "Southern part of the Customs House complex (ND49–50 share 41 Phillimore St); the complex footprint is matched to ND50.",
       "contents": [
         "Health Sciences Reception",
         "Student & staff gymnasium",
@@ -422,9 +440,10 @@
     {
       "ref": "ND50",
       "name": "Wellbeing Centre & School of Nursing & Midwifery",
-      "address": "49 Phillimore Street (Robert Harper Building)",
-      "osm": "way/1013675207",
-      "confidence": "low",
+      "address": "2 Henry Street / 41 Phillimore Street (Customs House)",
+      "osm": "way/142222969",
+      "confidence": "medium",
+      "note": "The Customs House complex at the corner of Phillimore & Henry Streets (the university lists the Wellbeing Centre as 'ND50, Customs House, 2 Henry Street'). Previously mis-matched to the Robert Harper Building at 49 Phillimore St, which is not a university building.",
       "contents": [
         "Wellbeing Centre",
         "Access & Inclusion",
