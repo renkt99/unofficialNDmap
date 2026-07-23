@@ -5,6 +5,12 @@
  *  - not watching        -> tap starts watchPosition and begins following
  *  - watching + following -> tap stops watching entirely, removes the dot
  *  - watching, not following (user panned away) -> tap re-centers / resumes following
+ *
+ * Resilience: some platforms (notably iOS Safari) let an active watchPosition
+ * go silently dormant after the first fix — no further success or error
+ * callbacks ever fire. TIMEOUT errors trigger an immediate watch restart, and
+ * a watchdog timer catches the fully-silent case, both transparently
+ * restarting the watch (the automated version of a manual disable/re-enable).
  */
 (function () {
   'use strict';
@@ -15,15 +21,28 @@
   var NDMap = window.NDMap;
   var map = NDMap.map;
 
-  // watchPosition options (see startWatching below).
-  var GEO_MAX_AGE_MS = 5000;
+  // watchPosition options (see startWatching below). maximumAge is 0 (never
+  // accept a cached fix) because live tracking must always reflect a fresh
+  // reading, not a stale one from before the watch was (re)started.
   var GEO_TIMEOUT_MS = 15000;
+
+  // Watchdog: if no watchPosition callback (success or error) has fired in
+  // this long while watching, the platform's watch has likely gone silently
+  // dormant (the reported bug — no error, no update, ever, until the user
+  // manually toggles the button). Checked every WATCHDOG_INTERVAL_MS.
+  // WATCHDOG_STALL_MS is deliberately greater than GEO_TIMEOUT_MS so a
+  // spec-compliant platform recovers via the TIMEOUT error path first; the
+  // watchdog only catches the platforms that don't even deliver that.
+  var WATCHDOG_INTERVAL_MS = 5000;
+  var WATCHDOG_STALL_MS = 25000;
 
   var watching = false;
   var following = false;
   var watchId = null;
   var firstFix = true;
   var lastLatLng = null;
+  var lastCallbackAt = 0;
+  var watchdogTimer = null;
 
   var dotMarker = null;
   var accuracyCircle = null;
@@ -94,6 +113,7 @@
   // ---- geolocation callbacks ----------------------------------------------
 
   function onPosition(pos) {
+    lastCallbackAt = Date.now();
     var latlng = L.latLng(pos.coords.latitude, pos.coords.longitude);
     lastLatLng = latlng;
 
@@ -124,21 +144,58 @@
   }
 
   function onError(err) {
-    var message = 'Unable to determine location';
+    lastCallbackAt = Date.now();
+
     if (err && err.code === err.PERMISSION_DENIED) {
-      message = 'Location permission denied';
-    } else if (err && err.code === err.POSITION_UNAVAILABLE) {
-      message = 'Location unavailable';
-    } else if (err && err.code === err.TIMEOUT) {
-      message = 'Location request timed out';
-    }
-    showToast(message);
-    if (err && err.code === err.PERMISSION_DENIED) {
+      showToast('Location permission denied');
       stopWatching();
+      return;
+    }
+
+    if (err && err.code === err.TIMEOUT) {
+      // Recover the watch (see WATCHDOG_STALL_MS comment above). Only toast
+      // while still acquiring the first fix — after that, per-update
+      // timeouts are routine (e.g. stationary indoors) and shouldn't nag.
+      if (firstFix) {
+        showToast('Location request timed out');
+      }
+      restartWatch();
+      return;
+    }
+
+    // POSITION_UNAVAILABLE and anything else: transient GPS blips mid-walk
+    // shouldn't toast; the watch stays alive and the next good fix updates
+    // the dot. Only toast while still acquiring the first fix.
+    if (firstFix) {
+      var message = (err && err.code === err.POSITION_UNAVAILABLE) ?
+        'Location unavailable' : 'Unable to determine location';
+      showToast(message);
     }
   }
 
   // ---- start / stop ---------------------------------------------------------
+
+  function geoOptions() {
+    return {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: GEO_TIMEOUT_MS
+    };
+  }
+
+  // Transparently restart an active watch (clearWatch + watchPosition with
+  // the same callbacks/options). Does not touch watching/following/firstFix
+  // or the dot/button — from the user's perspective tracking never stopped.
+  // Restarting a watch that already has permission never re-prompts.
+  function restartWatch() {
+    if (!watching) {
+      return;
+    }
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+    }
+    watchId = navigator.geolocation.watchPosition(onPosition, onError, geoOptions());
+  }
 
   function startWatching() {
     if (!('geolocation' in navigator)) {
@@ -148,18 +205,26 @@
     watching = true;
     following = true;
     firstFix = true;
+    lastCallbackAt = Date.now();
     updateButtonVisual();
-    watchId = navigator.geolocation.watchPosition(onPosition, onError, {
-      enableHighAccuracy: true,
-      maximumAge: GEO_MAX_AGE_MS,
-      timeout: GEO_TIMEOUT_MS
-    });
+    watchId = navigator.geolocation.watchPosition(onPosition, onError, geoOptions());
+
+    watchdogTimer = setInterval(function () {
+      if (watching && (Date.now() - lastCallbackAt) > WATCHDOG_STALL_MS) {
+        restartWatch();
+        lastCallbackAt = Date.now();
+      }
+    }, WATCHDOG_INTERVAL_MS);
   }
 
   function stopWatching() {
     if (watchId !== null) {
       navigator.geolocation.clearWatch(watchId);
       watchId = null;
+    }
+    if (watchdogTimer !== null) {
+      clearInterval(watchdogTimer);
+      watchdogTimer = null;
     }
     watching = false;
     following = false;
