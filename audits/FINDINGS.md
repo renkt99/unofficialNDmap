@@ -508,19 +508,26 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### DATA-001 — Verify the 11 low-confidence building locations on the ground
 
-- **Status:** open · **Severity:** high · **Date:** 2026-07-21
-- **Location:** `data/nd-buildings.json` (entries with `"confidence": "low"`
-  after the Nov-2025 map update: ND8, ND9, ND11, ND13, ND16, ND34, ND38,
-  ND39, ND49, ND50)
+- **Status:** open · **Severity:** med · **Date:** 2026-07-21
+- **Location:** `data/nd-buildings.json` (entries with `"confidence": "low"`:
+  ND9, ND10, ND11, ND34, ND38)
 - **Problem:** These ND references could not be confidently matched to an OSM
-  footprint during curation; six render as approximate point markers and four
-  (ND11, ND13, ND49, ND50) use best-guess polygons. Users may be directed
-  to the wrong building. ND48's footprint is medium-confidence but its
-  official grid square (A7) disagrees with the OSM Customs House position —
-  check it too.
-- **Goal:** Walk the campus (or cross-reference the current official map) and
-  for each entry either assign the correct `osm` way id from
-  `data/footprints-raw.json` or correct the `point`, then raise `confidence`.
+  footprint during curation. Users may be directed to the wrong building.
+- **Progress (2026-07-23):** Desk-verified the whole dataset after a user
+  report of misplaced buildings, using the geographic 2015 official map
+  (isometric, drawn to real positions — unlike the schematic 2025 edition),
+  OSM footprint vertex topology, and street addresses from streetsoffreo.com.au.
+  Fixed the two big mis-matches: way/164418329 is the ND16/ND39 strip attached
+  to the library's south side (was assigned to ND11), and the Customs House
+  site is ND48 = 7 Pakenham St (way/142222981), ND49–50 = 41 Phillimore St
+  (way/142222969) — the previous data had ND48/ND49 swapped and ND50 on the
+  Robert Harper Building (49 Phillimore), which is not ND's. Re-pointed
+  ND8/9/11/15/34/38/39 (several sat inside the wrong footprint, e.g. ND34 and
+  ND15 inside the library) and added ND10 (on the official map but not its
+  legend). Severity downgraded: remaining low entries are point-precision
+  within the correct courtyard pocket, not wrong-building errors.
+- **Goal:** Walk the campus and confirm the five remaining low-confidence
+  point markers (ND9, ND10, ND11, ND34, ND38), then raise `confidence`.
   Rebuild with `node scripts/build-geojson.mjs`.
 - **Done when:** No entry in nd-buildings.json carries `"confidence": "low"`;
   `node scripts/validate-data.mjs` passes; spot-checked on the deployed map.
