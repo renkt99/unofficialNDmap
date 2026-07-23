@@ -274,6 +274,33 @@ Every `open` entry is written to be handed off as-is by its ID:
   with the panel's CSS-anchored side (left edge on desktop, bottom edge on
   mobile) exactly as the original constants were (this PR).
 
+### COR-009 — Recover the GPS watch when the platform stops delivering fixes
+
+- **Status:** fixed · **Severity:** high · **Date:** 2026-07-23
+- **Location:** `js/locate.js` (`startWatching`/`onError` watch options +
+  recovery)
+- **Problem:** `watchPosition` was started once and never recovered — on
+  real devices (notably iOS Safari) the watch goes dormant after the first
+  fix with no further callbacks, so the dot never tracked live and users had
+  to toggle the button to force a new watch; `maximumAge: 5000` also allowed
+  a stale cached first fix, and TIMEOUT errors only toasted without
+  recovering the watch.
+- **Resolution:** `maximumAge` is now `0` (live tracking never accepts a
+  cached fix). Added `restartWatch()`, a transparent `clearWatch` +
+  `watchPosition` restart that touches nothing else (watching/following/
+  firstFix/dot/button). TIMEOUT errors now call `restartWatch()` immediately
+  (toasting only pre-first-fix, since post-fix timeouts are routine).
+  POSITION_UNAVAILABLE and other errors stay silent post-first-fix so
+  transient GPS blips mid-walk don't nag the user while the watch stays
+  alive. A watchdog (`WATCHDOG_INTERVAL_MS = 5000`,
+  `WATCHDOG_STALL_MS = 25000`, deliberately above the 15s geolocation
+  timeout so spec-compliant platforms recover via the TIMEOUT path first)
+  catches the fully-silent dormancy case and restarts the watch with no
+  callback at all. Verified in headless Chromium with a fake-geolocation
+  harness covering options, silent-dormancy recovery, TIMEOUT recovery,
+  first-fix-timeout toasting, and permission-denied still stopping, plus a
+  real-geolocation regression check (PR #39).
+
 ## CQ — Code Quality
 
 ### CQ-001 — Show a user-visible error when the buildings layer fails to load
