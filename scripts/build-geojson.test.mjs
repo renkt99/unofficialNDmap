@@ -8,7 +8,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ringFromGeometry, geometryFor, findOsmElement, kindForTags } from './build-geojson.mjs';
+import { ringFromGeometry, ringFromLatLngs, geometryFor, findOsmElement, kindForTags } from './build-geojson.mjs';
 
 test('ringFromGeometry: already-closed ring is unchanged', () => {
   const geometry = [
@@ -42,6 +42,32 @@ test('ringFromGeometry: unclosed ring gets closed by appending the first coord',
     [1, 1],
     [0, 0],
   ]);
+});
+
+test('ringFromLatLngs: swaps curated [lat,lng] vertices to [lon,lat] and closes the ring', () => {
+  const ring = ringFromLatLngs([
+    [-32.1, 115.7],
+    [-32.1, 115.8],
+    [-32.2, 115.8],
+  ]);
+  assert.equal(ring.length, 4);
+  assert.deepEqual(ring[ring.length - 1], ring[0]);
+  assert.deepEqual(ring, [
+    [115.7, -32.1],
+    [115.8, -32.1],
+    [115.8, -32.2],
+    [115.7, -32.1],
+  ]);
+});
+
+test('ringFromLatLngs: an already-closed curated ring is unchanged', () => {
+  const ring = ringFromLatLngs([
+    [-32.1, 115.7],
+    [-32.1, 115.8],
+    [-32.2, 115.8],
+    [-32.1, 115.7],
+  ]);
+  assert.equal(ring.length, 4);
 });
 
 test('geometryFor: a way element produces a Polygon', () => {

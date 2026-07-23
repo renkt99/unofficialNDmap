@@ -19,6 +19,17 @@ export function ringFromGeometry(geometry) {
   return ring;
 }
 
+// Closed GeoJSON ring from a curated `polygon` vertex list. Curated vertices
+// are [lat, lng] (matching the `point` field convention); GeoJSON positions
+// are [lon, lat].
+export function ringFromLatLngs(latLngs) {
+  const ring = latLngs.map(([lat, lon]) => [lon, lat]);
+  const [fx, fy] = ring[0];
+  const [lx, ly] = ring[ring.length - 1];
+  if (fx !== lx || fy !== ly) ring.push([fx, fy]);
+  return ring;
+}
+
 // Even-odd point-in-ring test for [lon, lat] points against a closed ring of
 // [lon, lat] pairs. Used only to decide which outer shell an inner (hole)
 // ring belongs to for MultiPolygon relations.
@@ -208,7 +219,15 @@ function main() {
     if (b.note) props.note = b.note;
 
     let geometry;
-    if (b.osm) {
+    if (b.polygon) {
+      // Hand-drawn footprint, used where one OSM way covers several ND
+      // numbers and the official map's interior walls split it (e.g. the
+      // ND21/ND38 terrace). `osm` may still name the parent way so it stays
+      // excluded from the context layer below.
+      geometry = { type: 'Polygon', coordinates: [ringFromLatLngs(b.polygon)] };
+      if (b.osm) props.osm = b.osm;
+      props.labelPoint = labelPointFor(geometry);
+    } else if (b.osm) {
       const el = findOsmElement(byId, b.osm, b.ref);
       geometry = geometryFor(el);
       props.osm = b.osm;
@@ -216,7 +235,7 @@ function main() {
     } else if (b.point) {
       geometry = { type: 'Point', coordinates: [b.point[1], b.point[0]] };
     } else {
-      throw new Error(`${b.ref}: needs either "osm" or "point"`);
+      throw new Error(`${b.ref}: needs either "osm", "polygon" or "point"`);
     }
     features.push({ type: 'Feature', properties: props, geometry });
   }
