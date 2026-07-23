@@ -6,7 +6,7 @@
 // code here has no bundler, so it can't import an .mjs module directly.
 //
 // scripts/fetch-footprints.mjs deliberately queries a WIDER bbox than this
-// for its raw OSM snapshots (so buildings/POIs just outside the tight map
+// for its raw OSM snapshot (so buildings just outside the tight map
 // bounds are still available in the raw data if ever needed) — do not tighten
 // that script's bbox to match this file.
 export const BOUNDS = { south: -32.0585, west: 115.7408, north: -32.0522, east: 115.7465 };

@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 // Data sanity checks, run in CI. Fails (exit 1) on any violation:
-// - buildings.geojson / pois.geojson parse as GeoJSON FeatureCollections
+// - buildings.geojson parses as a GeoJSON FeatureCollection
 // - every ND ref in nd-buildings.json appears exactly once in buildings.geojson
 // - every geometry lies within the campus bounds the map is locked to
 // - every building has a name and a non-empty contents list
-// - every POI has a known `kind` and a `name` that is either null or non-empty
 // - every Polygon/MultiPolygon ring in buildings.geojson and
 //   context-buildings.geojson is closed and has at least 4 positions
 //
@@ -17,8 +16,6 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { BOUNDS } from './bounds.mjs';
 import { parseAppJsCampusBounds } from './parse-app-bounds.mjs';
-
-const KNOWN_POI_KINDS = ['parking', 'bus_stop'];
 
 const dataDirPath = process.argv[2]
   ? resolve(process.cwd(), process.argv[2])
@@ -88,10 +85,9 @@ function ringClosureErrors(name, fc) {
 
 const curated = JSON.parse(readFileSync(dataDir('nd-buildings.json'), 'utf8'));
 const buildings = JSON.parse(readFileSync(dataDir('buildings.geojson'), 'utf8'));
-const pois = JSON.parse(readFileSync(dataDir('pois.geojson'), 'utf8'));
 const contextBuildings = JSON.parse(readFileSync(dataDir('context-buildings.geojson'), 'utf8'));
 
-for (const [name, fc] of [['buildings.geojson', buildings], ['pois.geojson', pois]]) {
+for (const [name, fc] of [['buildings.geojson', buildings]]) {
   if (fc.type !== 'FeatureCollection' || !Array.isArray(fc.features)) {
     errors.push(`${name}: not a FeatureCollection`);
     continue;
@@ -126,20 +122,6 @@ for (const f of buildings.features) {
   if (!['high', 'medium', 'low'].includes(p.confidence)) errors.push(`${p.ref}: bad confidence "${p.confidence}"`);
 }
 
-// POI kind must be from the known set produced by kindForTags() in
-// build-geojson.mjs; name may legitimately be null (e.g. unnamed parking
-// lots) but must never be an empty string.
-pois.features.forEach((f, i) => {
-  const p = f.properties ?? {};
-  const id = p.osm ?? i;
-  if (!KNOWN_POI_KINDS.includes(p.kind)) {
-    errors.push(`pois.geojson[${id}]: bad kind "${p.kind}"`);
-  }
-  if (p.name !== null && (typeof p.name !== 'string' || p.name.trim() === '')) {
-    errors.push(`pois.geojson[${id}]: name must be null or a non-empty string, got ${JSON.stringify(p.name)}`);
-  }
-});
-
 errors.push(...ringClosureErrors('buildings.geojson', buildings));
 errors.push(...ringClosureErrors('context-buildings.geojson', contextBuildings));
 
@@ -148,4 +130,4 @@ if (errors.length) {
   for (const e of errors) console.error(`  - ${e}`);
   process.exit(1);
 }
-console.log(`Validation OK: ${buildings.features.length} buildings, ${pois.features.length} POIs.`);
+console.log(`Validation OK: ${buildings.features.length} buildings.`);

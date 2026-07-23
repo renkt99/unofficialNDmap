@@ -8,7 +8,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ringFromGeometry, ringFromLatLngs, geometryFor, findOsmElement, kindForTags } from './build-geojson.mjs';
+import { ringFromGeometry, ringFromLatLngs, geometryFor, findOsmElement } from './build-geojson.mjs';
 
 test('ringFromGeometry: already-closed ring is unchanged', () => {
   const geometry = [
@@ -288,17 +288,4 @@ test('findOsmElement: throws with the ref and osm id when not found in the snaps
     () => findOsmElement(byId, 'way/999', 'ND1'),
     /ND1: OSM element way\/999 not found in footprints-raw\.json/,
   );
-});
-
-test('kindForTags: amenity=parking maps to "parking"', () => {
-  assert.equal(kindForTags({ amenity: 'parking' }), 'parking');
-});
-
-test('kindForTags: highway=bus_stop maps to "bus_stop"', () => {
-  assert.equal(kindForTags({ highway: 'bus_stop' }), 'bus_stop');
-});
-
-test('kindForTags: unrelated tags are skipped (null/undefined)', () => {
-  assert.ok(!kindForTags({ amenity: 'cafe' }));
-  assert.ok(!kindForTags({}));
 });

@@ -1,6 +1,6 @@
 # Security audit checklist (SEC)
 
-The biggest realistic risk in this repo is DOM injection: building/POI data —
+The biggest realistic risk in this repo is DOM injection: building data —
 much of it ultimately sourced from OSM, which anyone can edit — flows into
 `innerHTML` in `js/panel.js` / `js/search.js` and into Leaflet tooltip/`divIcon`
 `html` fields in `js/app.js`, with `NDMap.escapeHtml()` as the single point of
@@ -35,16 +35,6 @@ to backstop either of these. Findings from this checklist are logged in
       229) — confirm `feature.properties.ref` and `.name` both pass through
       `escapeHtml` before concatenation into the `label-ref`/`label-name`
       spans.
-- [ ] `js/app.js` `bindPoiTooltip()` (lines 185-190) — confirm
-      `feature.properties.name` from `data/pois.geojson` passes through
-      `escapeHtml` before `layer.bindTooltip(...)`; this is the field most
-      directly populated from a raw OSM `name` tag (see Data pipeline section).
-- [ ] `js/app.js` `poiIcon()` `divIcon` `html` (lines 159-177) — the glyph/CSS
-      class come from a fixed internal `if/else` on the `kind` string passed by
-      the caller, not from OSM tag data directly, so no escaping is needed
-      today; verify this stays true if `kind` is ever derived by
-      directly forwarding an OSM tag value instead of the current
-      `poiFilter`/switch logic in `js/app.js` and `scripts/build-geojson.mjs`.
 - [ ] `js/app.js` `InfoControl.onAdd()` sets `link.innerHTML = 'ⓘ'` (line 295)
       — confirm this stays a static string; flag if it's ever changed to
       interpolate any variable text.
@@ -62,20 +52,13 @@ to backstop either of these. Findings from this checklist are logged in
       invoked directly (no shell), so there is no shell-interpolation/injection
       vector even though `BBOX` and the query bodies are template-literal
       constructed.
-- [ ] Trust boundary at `scripts/build-geojson.mjs` line 94 — `t.name` (a raw,
-      unsanitized OSM `name` tag value from `data/pois-raw.json`) is written
-      straight into `pois.geojson`'s `properties.name` with no transformation;
-      confirm the *only* mitigation for a malicious/vandalized OSM edit (e.g.
-      an `onerror=` payload in a POI's `name` tag) is `escapeHtml` at render
-      time in `js/app.js` `bindPoiTooltip()`, and that this path is never
-      bypassed.
 - [ ] `scripts/fetch-footprints.mjs` `ENDPOINTS` (lines 29-33) — three
       third-party Overpass mirrors (`overpass-api.de`, `overpass.kumi.systems`,
-      `overpass.private.coffee`); confirm the fetched `data/*-raw.json`
-      snapshots and the derived `data/buildings.geojson` / `data/pois.geojson`
-      are committed to git (not fetched at request time), so a compromised or
-      malicious mirror response requires a human-reviewed commit before it can
-      reach production, rather than propagating directly to site visitors.
+      `overpass.private.coffee`); confirm the fetched `data/footprints-raw.json`
+      snapshot and the derived `data/buildings.geojson` are committed to git
+      (not fetched at request time), so a compromised or malicious mirror
+      response requires a human-reviewed commit before it can reach
+      production, rather than propagating directly to site visitors.
 - [ ] `data/nd-buildings.json` (hand-curated) — confirm no script *writes* to
       this file automatically; `scripts/build-geojson.mjs` only reads it
       (`readFileSync` at line 13), so the Overpass pipeline cannot silently

@@ -18,12 +18,6 @@ const QUERY = `[out:json][timeout:60];
   relation["building"](${BBOX});
 );
 out geom;`;
-const POI_QUERY = `[out:json][timeout:60];
-(
-  nwr["amenity"="parking"]["access"!="private"](${BBOX});
-  node["highway"="bus_stop"](${BBOX});
-);
-out tags center;`;
 
 const ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
@@ -55,8 +49,3 @@ const buildings = overpass(QUERY);
 console.log(`Fetched ${buildings.elements.length} building elements`);
 writeFileSync(fileURLToPath(new URL('../data/footprints-raw.json', import.meta.url)), JSON.stringify(buildings));
 console.log('Wrote data/footprints-raw.json');
-
-const pois = overpass(POI_QUERY);
-console.log(`Fetched ${pois.elements.length} POI elements`);
-writeFileSync(fileURLToPath(new URL('../data/pois-raw.json', import.meta.url)), JSON.stringify(pois));
-console.log('Wrote data/pois-raw.json');

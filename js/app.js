@@ -1,5 +1,5 @@
 /*
- * app.js — map bootstrap, building layer, POI layer, layers control.
+ * app.js — map bootstrap, building layer, layers control.
  * Exposes window.NDMap, a shared namespace used by panel.js / locate.js / search.js.
  */
 (function () {
@@ -79,7 +79,7 @@
   });
 
   // Escapes &, <, >, ", ' for safe insertion into innerHTML. Used throughout
-  // panel.js and search.js wherever building/POI data is rendered as HTML.
+  // panel.js and search.js wherever building data is rendered as HTML.
   function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str).replace(/[&<>"']/g, function (c) {
@@ -209,38 +209,6 @@
     if (NDMap.closePanel) NDMap.closePanel();
   });
 
-  // ---- POI icons --------------------------------------------------------
-
-  function poiIcon(kind) {
-    var glyph, cls;
-    if (kind === 'parking') {
-      glyph = 'P';
-      cls = 'poi-parking';
-    } else {
-      glyph = '🚌'; // bus emoji
-      cls = 'poi-bus';
-    }
-    return L.divIcon({
-      className: 'poi-icon-wrap',
-      html: '<div class="poi-badge ' + cls + '">' + glyph + '</div>',
-      iconSize: [26, 26],
-      iconAnchor: [13, 13]
-    });
-  }
-
-  function poiFilter(kind) {
-    return function (feature) {
-      return feature.properties && feature.properties.kind === kind;
-    };
-  }
-
-  function bindPoiTooltip(feature, layer) {
-    var name = feature.properties && feature.properties.name;
-    if (name) {
-      layer.bindTooltip(escapeHtml(name), { direction: 'top', offset: [0, -10] });
-    }
-  }
-
   // ---- Load data --------------------------------------------------------
 
   var buildingsPromise = fetch('data/buildings.geojson')
@@ -267,20 +235,9 @@
       return null;
     });
 
-  var poisPromise = fetch('data/pois.geojson')
-    .then(function (res) {
-      if (!res.ok) throw new Error('pois.geojson HTTP ' + res.status);
-      return res.json();
-    })
-    .catch(function (err) {
-      console.warn('POI layer unavailable', err);
-      return null;
-    });
-
-  Promise.all([buildingsPromise, poisPromise, contextPromise]).then(function (results) {
+  Promise.all([buildingsPromise, contextPromise]).then(function (results) {
     var buildingsData = results[0];
-    var poisData = results[1];
-    var contextData = results[2];
+    var contextData = results[1];
     var overlays = {};
 
     if (contextData) {
@@ -354,28 +311,6 @@
       updateLabelVisibility();
 
       document.dispatchEvent(new CustomEvent('ndmap:buildings-ready', { detail: buildingsData }));
-    }
-
-    if (poisData) {
-      var parkingLayer = L.geoJSON(poisData, {
-        filter: poiFilter('parking'),
-        pointToLayer: function (feature, latlng) {
-          return L.marker(latlng, { icon: poiIcon('parking') });
-        },
-        onEachFeature: bindPoiTooltip
-      }).addTo(map);
-
-      var busLayer = L.geoJSON(poisData, {
-        filter: poiFilter('bus_stop'),
-        pointToLayer: function (feature, latlng) {
-          return L.marker(latlng, { icon: poiIcon('bus_stop') });
-        },
-        onEachFeature: bindPoiTooltip
-      }).addTo(map);
-
-      NDMap.poiLayers = { parking: parkingLayer, bus_stop: busLayer };
-      overlays['Parking'] = parkingLayer;
-      overlays['Bus stops'] = busLayer;
     }
 
     if (Object.keys(overlays).length) {

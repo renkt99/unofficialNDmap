@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 // Merge the curated ND building list (data/nd-buildings.json) with OSM
-// footprints (data/footprints-raw.json) into data/buildings.geojson, and
-// convert data/pois-raw.json into data/pois.geojson.
+// footprints (data/footprints-raw.json) into data/buildings.geojson.
 //
 // Usage: node scripts/build-geojson.mjs
 
@@ -89,13 +88,6 @@ export function findOsmElement(byId, osmId, ref) {
   const el = byId.get(osmId);
   if (!el) throw new Error(`${ref}: OSM element ${osmId} not found in footprints-raw.json`);
   return el;
-}
-
-// tags → POI "kind", or null/undefined to skip the element.
-export function kindForTags(t) {
-  if (t.amenity === 'parking') return 'parking';
-  if (t.highway === 'bus_stop') return 'bus_stop';
-  return null;
 }
 
 // --- Label anchor: pole of inaccessibility ("polylabel") ---
@@ -280,45 +272,6 @@ function main() {
     JSON.stringify({ type: 'FeatureCollection', _attribution: '© OpenStreetMap contributors (ODbL)', features: contextFeatures }),
   );
   console.log(`Wrote data/context-buildings.geojson (${contextFeatures.length} features)`);
-
-  // --- POIs ---
-  const poisRaw = JSON.parse(readFileSync(dataDir('pois-raw.json'), 'utf8'));
-  const poiFeatures = [];
-  let droppedOutsideBounds = 0;
-  for (const el of poisRaw.elements) {
-    const t = el.tags || {};
-    const kind = kindForTags(t);
-    if (!kind) continue;
-    // Note: the PDF legend shows CAT bus stops, but the Fremantle CAT service
-    // was discontinued in 2023 — regular (Transperth) stops are shown instead.
-    const lat = el.lat ?? el.center?.lat;
-    const lon = el.lon ?? el.center?.lon;
-    if (lat == null || lon == null) continue;
-    // Query bbox clips ways loosely; keep only POIs whose centre is inside the
-    // campus bounds the map is locked to (must match validate-data.mjs).
-    if (lat < BOUNDS.south || lat > BOUNDS.north || lon < BOUNDS.west || lon > BOUNDS.east) {
-      droppedOutsideBounds++;
-      continue;
-    }
-    poiFeatures.push({
-      type: 'Feature',
-      properties: { kind, name: t.name ?? null, osm: `${el.type}/${el.id}` },
-      geometry: { type: 'Point', coordinates: [lon, lat] },
-    });
-  }
-  writeFileSync(
-    dataDir('pois.geojson'),
-    JSON.stringify({ type: 'FeatureCollection', _attribution: '© OpenStreetMap contributors (ODbL)', features: poiFeatures }),
-  );
-  console.log(`Wrote data/pois.geojson (${poiFeatures.length} features, ${droppedOutsideBounds} dropped outside bounds)`);
-  // fetch-footprints.mjs intentionally queries a wider bbox, so ~80% of raw
-  // POIs land outside BOUNDS on a healthy build — only warn well above that.
-  const droppedShare = droppedOutsideBounds / (droppedOutsideBounds + poiFeatures.length || 1);
-  if (droppedShare >= 0.9) {
-    console.warn(
-      `WARNING: dropped ${droppedOutsideBounds} of ${droppedOutsideBounds + poiFeatures.length} POIs outside BOUNDS — check pois-raw.json / bounds.mjs`,
-    );
-  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
