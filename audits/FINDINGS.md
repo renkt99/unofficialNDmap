@@ -116,6 +116,23 @@ Every `open` entry is written to be handed off as-is by its ID:
   execute script; scripts remain `'self'`-only). Verified headless that a
   blocked tile request no longer emits a CSP violation (this PR).
 
+### SEC-004 — Track CVE-2025-69993 (bindPopup/bindTooltip XSS) against vendored Leaflet 1.9.4
+
+- **Status:** wontfix · **Severity:** low · **Date:** 2026-07-23
+- **Location:** `vendor/leaflet.js` (Leaflet 1.9.4); `js/app.js` `bindTooltip`
+  call sites
+- **Problem:** CVE-2025-69993 / GHSA-h5cx-hfj5-x8v3 (published 2026-04, after
+  the last security sweep) documents that Leaflet ≤1.9.4 renders strings passed
+  to `bindPopup()`/`bindTooltip()` as raw HTML. No fixed release exists —
+  Leaflet's maintainers state this is the documented HTML-sink API working as
+  intended, putting sanitization on the caller.
+- **Resolution:** Already fully mitigated at every call site: `bindPopup` is
+  never called anywhere in the app, and both `bindTooltip` call sites
+  (`buildingLabelHtml()` and `bindPoiTooltip()` in `js/app.js`) pass only
+  `escapeHtml()`-ed strings. Recorded so future sweeps treat the advisory as
+  known; re-verify call-site escaping coverage and check for a patched Leaflet
+  release at each security sweep.
+
 ## COR — Correctness
 
 ### COR-001 — Render the P&O Hotel (ND5) courtyard hole instead of dropping it
@@ -438,6 +455,50 @@ Every `open` entry is written to be handed off as-is by its ID:
   file; fail-fast with the offending entry in the stack trace is adequate, and
   `validate-data.mjs` + CI gate the merged output.
 
+### CQ-007 — Name the GPS accuracy-circle colour and cross-reference `--blue`
+
+- **Status:** open · **Severity:** low · **Date:** 2026-07-23
+- **Location:** `js/locate.js:89,91` (`drawOrUpdateDot()`); `css/app.css:13`
+  (`--blue`)
+- **Problem:** The accuracy circle hardcodes `'#3b82f6'` twice, duplicating
+  `--blue` (used by `.gps-dot`) with no named constant or "must match" comment
+  — the one colour pair the CQ-004 constant-naming pass missed (it predates
+  it).
+- **Goal:** Add `var COLOR_GPS_BLUE = '#3b82f6';` near the top of
+  `js/locate.js` with a "must match --blue in css/app.css" comment (mirroring
+  `COLOR_NAVY` in `js/app.js`), use it for both `color`/`fillColor`, and add
+  the paired comment on `--blue` in `css/app.css`.
+- **Done when:** No raw `#3b82f6` literal remains in `js/locate.js` and both
+  files carry the paired cross-reference comments.
+
+### CQ-008 — Remove or document the unused `--navy-mid` custom property
+
+- **Status:** open · **Severity:** low · **Date:** 2026-07-23
+- **Location:** `css/app.css:10`
+- **Problem:** `--navy-mid: #005cab;` is declared in `:root` but consumed
+  nowhere (`var(--navy-mid)` has zero uses in the repo); `--accent-blue` holds
+  the same value and is the one actually used. A dead declaration invites
+  silent drift from the value it appears to govern.
+- **Goal:** Delete the declaration, or — if it is a deliberate reserve —
+  annotate it in the `:root` comment block as an alias of `--accent-blue`.
+- **Done when:** `grep -rn 'navy-mid'` returns nothing, or a declaration with
+  a real use or an explanatory comment.
+
+### CQ-009 — Remove the always-false synchronous buildIndex guard in search.js
+
+- **Status:** wontfix · **Severity:** low · **Date:** 2026-07-23
+- **Location:** `js/search.js:54`
+- **Problem:** `if (NDMap.buildingsData) buildIndex(NDMap.buildingsData);`
+  appears dead: with four synchronous classic scripts, app.js's async fetch
+  cannot have resolved before search.js executes, so the index is only ever
+  populated via the `ndmap:buildings-ready` listener registered just below.
+- **Resolution:** Kept deliberately — the guard is one line of insurance
+  against the `ndmap:buildings-ready` event firing before search.js registers
+  its listener (possible if the HTML parser ever yields between scripts, or if
+  the script tags are ever reordered/deferred), a case the listener alone
+  would silently miss forever. Near-zero cost against a hard-to-diagnose
+  regression.
+
 ## TEST — Testing
 
 ### TEST-001 — Add a node:test suite for build-geojson.mjs's geometry and merge logic
@@ -504,6 +565,55 @@ Every `open` entry is written to be handed off as-is by its ID:
   no-deps principle stands. Revisit only if the browser code grows
   substantially or the no-deps principle is dropped.
 
+### TEST-004 — Export and test the label-anchor algorithm (`labelPointFor`)
+
+- **Status:** open · **Severity:** low · **Date:** 2026-07-23
+- **Location:** `scripts/build-geojson.mjs:107-201` (`labelPointFor`,
+  `poleOfInaccessibility`, `ringArea`, `polygonDist`, `segDistSq`);
+  `scripts/build-geojson.test.mjs:11` (import list)
+- **Problem:** The ~95-line pole-of-inaccessibility algorithm that computes
+  every non-Point building's `labelPoint` is unexported and has zero test
+  coverage; `validate-data.mjs` only checks the result lies within campus
+  `BOUNDS`, not inside the building's own polygon, so a regression producing
+  off-footprint labels would ship silently.
+- **Goal:** Export `labelPointFor` (and `ringArea`) alongside the other pure
+  helpers and add node:test cases: a convex quad, an L-shaped concave polygon
+  (assert the returned point lies inside the ring — a naive centroid fails
+  this), and a two-part MultiPolygon with unequal areas (assert the label
+  lands in the larger part).
+- **Done when:** `node --test "scripts/**/*.test.mjs"` includes and passes
+  those cases.
+
+### TEST-005 — Add bad fixtures for the validator checks that have none
+
+- **Status:** open · **Severity:** low · **Date:** 2026-07-23
+- **Location:** `scripts/validate-data.mjs` (feature-shape check ~line 96,
+  `labelPoint` presence/bounds ~113-118, empty `contents` ~121, bad
+  `confidence` ~122, and the <4-position branch of `ringClosureErrors()`
+  ~75); `scripts/validate-data.test.mjs:33-39` (`badCases`)
+- **Problem:** The fixture self-test covers only the five original TEST-002
+  cases; a regression silently disabling any of the later-added checks above
+  would still pass CI — the exact failure mode TEST-002 was created to
+  prevent.
+- **Goal:** Add `scripts/fixtures/bad/{malformed-feature,missing-labelpoint,labelpoint-out-of-bounds,empty-contents,bad-confidence,short-ring}/`
+  dirs, each a copy of `good/` breaking exactly one thing, and extend
+  `badCases` with matching error-substring patterns.
+- **Done when:** Each validator check has a fixture test that fails when the
+  check is short-circuited, and the full suite passes on the real data.
+
+### TEST-006 — Cover `geometryFor`'s orphan-inner-ring fallback
+
+- **Status:** open · **Severity:** low · **Date:** 2026-07-23
+- **Location:** `scripts/build-geojson.mjs:77` (`?? polys[0]`)
+- **Problem:** The fallback that attaches an inner ring contained by neither
+  outer shell to the first polygon is untested and, unlike the sibling
+  inner-missing-geometry case, emits no warning — malformed OSM topology
+  would silently punch a hole in the wrong shell.
+- **Goal:** Add a test with an inner ring lying outside both outers asserting
+  the fallback behaviour, and add a `console.warn` on that path for
+  consistency with the COR-004 precedent.
+- **Done when:** The test exists and passes, and the orphan path warns.
+
 ## DATA — Data
 
 ### DATA-001 — Verify the 11 low-confidence building locations on the ground
@@ -567,6 +677,26 @@ Every `open` entry is written to be handed off as-is by its ID:
   against Overpass; OSM footprints in the bbox can move or be re-tagged
   independently of this repo, and the snapshots will silently age.
 - **Resolution:** Added "OSM snapshot refresh policy" paragraph to README.md's Data Pipeline section: re-fetch every 6 months or before each semester, then diff raw snapshots and review changed/removed way/relation ids in `osm` fields before regenerating (this PR).
+
+### DATA-004 — Retire the dead "low confidence" UI branch and stale copy
+
+- **Status:** open · **Severity:** low · **Date:** 2026-07-23
+- **Location:** `js/panel.js:41`; `index.html:29` (info-modal "Locations
+  marked approximate are unverified." sentence); `data/nd-buildings.json:2`
+  (`_comment`)
+- **Problem:** Since DATA-001's upgrade no entry carries
+  `confidence: "low"` (current data: 19 high / 22 medium), so the "Location
+  approximate — not yet verified on the ground" panel note can never render,
+  the modal sentence describes an affordance that no longer fires for
+  anything, and the `_comment` still documents the retired tier as live.
+- **Goal:** Remove the dead `p.confidence === 'low'` branch, the modal's
+  "approximate" sentence, and the `_comment`'s low-tier clause, updating the
+  comment to the current two-tier meaning (medium = correct footprint,
+  interior wall position estimated from the official map) — or, if a visible
+  caveat is still wanted, re-point the branch at `medium` with copy matching
+  what medium actually means.
+- **Done when:** Every confidence tier referenced in UI copy/comments exists
+  in the data, and any rendered caveat matches its tier's real meaning.
 
 ## UX — UX / Accessibility
 
@@ -774,6 +904,99 @@ Every `open` entry is written to be handed off as-is by its ID:
   the map, the panel stayed open and the highlight persisted; a subsequent
   tap on the map background still closed the panel and cleared the highlight
   (PR #38).
+
+### UX-011 — Activate the info control with the Space key
+
+- **Status:** open · **Severity:** med · **Date:** 2026-07-23
+- **Location:** `js/app.js:390-407` (`InfoControl.onAdd`)
+- **Problem:** The ⓘ control is an `<a role="button">` with only a click
+  listener; Enter fires a native click on a link, but Space scrolls the page
+  instead of activating — ARIA APG requires `role="button"` elements to
+  respond to both keys, so the control misbehaves for exactly the users the
+  role annotation targets.
+- **Goal:** Add a keydown handler that `preventDefault()`s and calls
+  `openInfoModal()` on Space (or switch the control to a real `<button>`),
+  preserving the existing deferred-focus behaviour in `openInfoModal`.
+- **Done when:** Focusing the control and pressing Space opens the modal
+  without scrolling the page (headless-verified).
+
+### UX-012 — Keep keyboard focus inside the aria-modal info modal
+
+- **Status:** open · **Severity:** med · **Date:** 2026-07-23
+- **Location:** `js/app.js:419-434` (`openInfoModal`); `index.html:26`
+- **Problem:** `#info-modal` declares `aria-modal="true"` but nothing makes
+  the background inert: Shift+Tab from the close button (the modal's only
+  focusable element) reaches the search input and map controls behind the
+  backdrop, contradicting the modal contract the markup promises to assistive
+  tech.
+- **Goal:** Trap Tab/Shift+Tab within the modal while it is open (with a
+  single focusable element both keys just cycle back to the close button), or
+  set `inert` on the sibling top-level containers for the modal's duration.
+- **Done when:** With the modal open, no sequence of Tab/Shift+Tab moves focus
+  outside it (headless-verified), and focus restore on close still works.
+
+### UX-013 — Give keyboard/screen-reader users a path to POI information
+
+- **Status:** open · **Severity:** med · **Date:** 2026-07-23
+- **Location:** `js/search.js:33-57` (`buildIndex`, buildings-only);
+  `js/app.js:237-242,359-379` (hover-only POI tooltips)
+- **Problem:** Parking and bus-stop markers expose their names only via hover
+  tooltips on non-focusable Leaflet layers, and `buildIndex` never ingests POI
+  data — keyboard and assistive-tech users cannot discover bus-stop names or
+  parking at all. UX-003's wontfix reasoning (search is the keyboard path)
+  covers buildings, which search reaches; POIs have no equivalent path.
+- **Goal:** Index POIs in search (bus stops under their names, parking lots
+  under a generic "Parking" label), with selection panning to the marker —
+  or, if judged out of scope, document POIs as visual-only supplements in the
+  info modal so the gap is an explicit trade-off.
+- **Done when:** A keyboard-only user can reach each POI's name via search
+  (headless-verified), or the info modal explicitly states POIs are
+  visual-only.
+
+### UX-014 — Serve a dark basemap under prefers-color-scheme: dark
+
+- **Status:** wontfix · **Severity:** low · **Date:** 2026-07-23
+- **Location:** `js/app.js:46` (hardcoded `light_all` tile URL);
+  `css/app.css` dark-mode block
+- **Problem:** System-dark-mode users get dark panel/modal/toast surfaces
+  over the full-bright cream basemap — brightest at night, when dark mode is
+  most likely active.
+- **Resolution:** Deliberate design: the warm cream basemap (sepia-filtered
+  CARTO Positron) is the map's visual identity, and PR #40 explicitly kept
+  the floating controls light in dark mode for the same reason (documented in
+  `css/app.css`'s `--control-*` comment block); only detached surfaces
+  (panel, modal, toast) follow the system theme. Revisit only if a dark tile
+  variant is ever designed intentionally.
+
+### UX-015 — Cache the app shell and data for offline use
+
+- **Status:** open · **Severity:** low · **Date:** 2026-07-23
+- **Location:** absent — no service worker registered in `index.html`/`js/`
+- **Problem:** Tiles and `data/*.geojson` have no cached fallback, so the app
+  goes blank in campus signal dead spots (thick-walled heritage buildings) —
+  a plain-JS resilience gap; no npm dependency or build step required.
+- **Goal:** Add a minimal vanilla `sw.js` (cache-first with background
+  refresh) covering `index.html`, `css/`, `js/`, `vendor/`, and
+  `data/*.geojson`, registered from `index.html` with the Pages subpath
+  scope; leave basemap tiles network-only. Include it in `pages.yml`'s
+  staging step.
+- **Done when:** After one online load, reloading with the network blocked
+  still renders the UI and building footprints (headless-verified with
+  request interception).
+
+### UX-016 — Tapping a POI icon closes an open building panel
+
+- **Status:** wontfix · **Severity:** low · **Date:** 2026-07-23
+- **Location:** `js/app.js:359-379` (POI layers bind tooltips only — no click
+  handler, no `stopPropagation`)
+- **Problem:** POI taps bubble to the map's click handler, which closes the
+  detail panel and clears the highlight — flagged by the correctness
+  checklist as a possible inconsistency with building clicks, which stop
+  propagation.
+- **Resolution:** Accepted as intended: POIs carry no panel, so a tap on one
+  behaves like a tap on the map background, which deliberately dismisses the
+  panel; the open/highlight invariants hold on that path (verified this
+  sweep). Revisit only if POIs ever gain their own panel content.
 
 ## BLD — Build / Deployment
 
