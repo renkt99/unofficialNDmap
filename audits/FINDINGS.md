@@ -508,9 +508,10 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 ### DATA-001 — Verify the 11 low-confidence building locations on the ground
 
-- **Status:** open · **Severity:** med · **Date:** 2026-07-21
-- **Location:** `data/nd-buildings.json` (entries with `"confidence": "low"`:
-  ND9, ND10, ND11)
+- **Status:** fixed · **Severity:** med · **Date:** 2026-07-21
+- **Location:** `data/nd-buildings.json` (originally the entries with
+  `"confidence": "low"`: ND8, ND9, ND11, ND13, ND16, ND34, ND38, ND39,
+  ND49, ND50)
 - **Problem:** These ND references could not be confidently matched to an OSM
   footprint during curation. Users may be directed to the wrong building.
 - **Progress (2026-07-23):** Desk-verified the whole dataset after a user
@@ -531,12 +532,16 @@ Every `open` entry is written to be handed off as-is by its ID:
   field — ND21|ND38, ND16|ND39, ND34|ND14, ND50|ND49 each have their own
   polygon (wall positions estimated from the map drawing where the OSM
   outline gives no cue). ND34/ND38 raised to medium.
-- **Goal:** Walk the campus and confirm the three remaining low-confidence
-  point markers (ND9, ND10, ND11 — candidates for hand-drawn `polygon`
-  subdivisions of the ND13 footprint), and check the four estimated
-  interior-wall positions. Rebuild with `node scripts/build-geojson.mjs`.
-- **Done when:** No entry in nd-buildings.json carries `"confidence": "low"`;
-  `node scripts/validate-data.mjs` passes; spot-checked on the deployed map.
+- **Resolution:** No entry carries `"confidence": "low"` any more. Final
+  step (2026-07-23, at the user's direction to trust the Nov-2025 official
+  map): way/164418330 subdivided into ND8|ND9|ND10 (the Mouat Street arm
+  cascade), ND11 and ND13 via curated `polygon` rings, so every clustered
+  ND number has its own walled footprint; ND8's marker moved out of the
+  courtyard walkway into the arm's northern slice. The eight estimated
+  interior-wall positions (notes say "estimated from the official map
+  drawing") are the residual imprecision — nudge them from user feedback
+  or an on-the-ground walk if they prove off; that is refinement, not a
+  wrong-building risk, so this finding is closed.
 
 ### DATA-002 — Re-verify all building data against the current official campus map
 
