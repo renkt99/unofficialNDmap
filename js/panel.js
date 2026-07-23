@@ -12,7 +12,6 @@
   var escapeHtml = NDMap.escapeHtml;
 
   var panelEl = document.getElementById('detail-panel');
-  var backdropEl = document.getElementById('panel-backdrop');
   var contentEl = document.getElementById('panel-content');
   var closeBtn = document.getElementById('panel-close');
 
@@ -59,7 +58,6 @@
     contentEl.innerHTML = renderFeature(feature);
     panelEl.classList.remove('hidden');
     panelEl.classList.add('open');
-    backdropEl.classList.remove('hidden');
     var ref = feature.properties && feature.properties.ref;
     if (ref) NDMap.highlightBuilding(ref);
 
@@ -92,7 +90,6 @@
     if (panelEl.classList.contains('hidden')) return;
     panelEl.classList.add('hidden');
     panelEl.classList.remove('open');
-    backdropEl.classList.add('hidden');
     NDMap.clearHighlight();
 
     var toFocus = previousFocus;
@@ -109,10 +106,6 @@
 
   closeBtn.addEventListener('click', function (e) {
     e.stopPropagation();
-    NDMap.closePanel();
-  });
-
-  backdropEl.addEventListener('click', function () {
     NDMap.closePanel();
   });
 

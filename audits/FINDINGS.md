@@ -708,6 +708,28 @@ Every `open` entry is written to be handed off as-is by its ID:
 - **Done when:** A documented decision backed by screenshots, and (if needed)
   zoom-gating shipped.
 
+### UX-010 — Let the map stay interactive under the mobile bottom sheet
+
+- **Status:** fixed · **Severity:** med · **Date:** 2026-07-23
+- **Location:** `index.html:24`; `css/app.css` (`#panel-backdrop`);
+  `js/panel.js` (`backdropEl`)
+- **Problem:** On <768px viewports `#panel-backdrop` was a full-screen
+  click-blocking layer, so the map could not be panned/zoomed while the
+  detail panel was open, and dismissing it also cleared the building
+  highlight — contradicting UX-002's non-modal intent.
+- **Resolution:** Removed `#panel-backdrop` entirely (the `<div>` in
+  `index.html`, the `backdropEl` variable/listener in `js/panel.js`, and the
+  `#panel-backdrop` rules — including the desktop transparent override — in
+  `css/app.css`), so the mobile bottom sheet is non-modal like the desktop
+  side panel. Tapping the map background still closes the panel via the
+  existing `map.on('click', ...)` handler in `js/app.js`, which Leaflet does
+  not fire after drags/pinches, so panning and zooming now keep the panel
+  open and the highlight visible. Verified with a real touch-drag sequence in
+  headless Chromium at 390×780: after selecting a search result and dragging
+  the map, the panel stayed open and the highlight persisted; a subsequent
+  tap on the map background still closed the panel and cleared the highlight
+  (PR #38).
+
 ## BLD — Build / Deployment
 
 ### BLD-001 — Commit the CI and Pages workflows once the gh token has workflow scope
