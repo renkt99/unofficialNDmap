@@ -1,5 +1,5 @@
 {
-  "_comment": "Source of truth for ND building data. Hand-curated. 'osm' is the OpenStreetMap element (in data/footprints-raw.json) providing the footprint polygon; 'point' [lat,lng] is used when no footprint could be confidently matched. 'contents' transcribed from the official Fremantle Campus Map (November 2025 edition, reference/fremantle-campus-map-2025-11.pdf; ND6572). Where the official legend leaves a building unnamed (e.g. ND13, ND33), 'name' uses its most prominent occupant or historic building name, with a note. 'confidence' reflects how sure the ND-number-to-footprint match is; low-confidence entries need on-the-ground verification.",
+  "_comment": "Source of truth for ND building data. Hand-curated. 'osm' is the OpenStreetMap element (in data/footprints-raw.json) providing the footprint polygon; 'polygon' is a hand-drawn ring of [lat,lng] vertices used where one OSM footprint covers several ND numbers and the official map's interior walls split it ('osm' then names the parent footprint, kept so it stays excluded from the context layer); 'point' [lat,lng] is used when no footprint could be confidently matched. 'contents' transcribed from the official Fremantle Campus Map (November 2025 edition, reference/fremantle-campus-map-2025-11.pdf; ND6572). Where the official legend leaves a building unnamed (e.g. ND13, ND33), 'name' uses its most prominent occupant or historic building name, with a note. 'confidence' reflects how sure the ND-number-to-footprint match is; low-confidence entries need on-the-ground verification.",
   "buildings": [
     {
       "ref": "ND1",
@@ -137,8 +137,14 @@
       "name": "School of Law & Business",
       "address": "Corner Henry & Croke Streets",
       "osm": "way/164418322",
+      "polygon": [
+        [-32.056582, 115.744641],
+        [-32.056757, 115.744717],
+        [-32.056744, 115.744379],
+        [-32.056676, 115.744352]
+      ],
       "confidence": "medium",
-      "note": "The northern portion of this footprint is ND34.",
+      "note": "Southern (Croke/Henry corner) half of way/164418322, split from ND34 per the official map.",
       "contents": ["School of Law & Business"]
     },
     {
@@ -156,8 +162,15 @@
       "name": "Celia Hammond Student Support Centre",
       "address": "Off Bateman Courtyard",
       "osm": "way/164418329",
+      "polygon": [
+        [-32.056358, 115.744401],
+        [-32.056427, 115.744166],
+        [-32.05642, 115.744144],
+        [-32.056366, 115.74412],
+        [-32.05629, 115.744371]
+      ],
       "confidence": "medium",
-      "note": "Strip attached to the south side of the library, matching the official map's ND16 position; the Henry Street end of this footprint is ND39.",
+      "note": "Western strip of way/164418329, attached to the library's south side; the setback in the OSM outline marks the wall to ND39, matching the official map.",
       "contents": [
         "Student Success",
         "Indigenous Student Engagement and Success"
@@ -193,7 +206,15 @@
       "name": "St John of God Hall",
       "address": "25–29 Henry Street",
       "osm": "way/164418327",
+      "polygon": [
+        [-32.055863, 115.74433],
+        [-32.055886, 115.744341],
+        [-32.055933, 115.744362],
+        [-32.056044, 115.744011],
+        [-32.055973, 115.743983]
+      ],
       "confidence": "medium",
+      "note": "Northern portion (25–29 Henry St) of the terrace footprint way/164418327, split along the ND21/ND38 interior wall shown on the official map.",
       "contents": ["Classrooms"]
     },
     {
@@ -284,10 +305,16 @@
       "ref": "ND34",
       "name": "School of Medicine",
       "address": "Henry Street",
-      "osm": null,
-      "point": [-32.0565, 115.74445],
-      "confidence": "low",
-      "note": "No separate OSM footprint — occupies the northern portion of the ND14 footprint, directly north of ND14 (official map grid E5).",
+      "osm": "way/164418322",
+      "polygon": [
+        [-32.056407, 115.744565],
+        [-32.056582, 115.744641],
+        [-32.056676, 115.744352],
+        [-32.056499, 115.744282],
+        [-32.056448, 115.744441]
+      ],
+      "confidence": "medium",
+      "note": "Northern half of way/164418322, split along the ND34/ND14 wall shown on the official map (wall position estimated from the drawing).",
       "contents": ["School of Medicine"]
     },
     {
@@ -333,20 +360,31 @@
       "ref": "ND38",
       "name": "Physiotherapy Laboratory",
       "address": "29–31 Henry Street",
-      "osm": null,
-      "point": [-32.056, 115.74433],
-      "confidence": "low",
-      "note": "Unnamed on the official map (listed as ND38). Southern (29–31 Henry St) portion of the terrace whose OSM footprint is matched to ND21.",
+      "osm": "way/164418327",
+      "polygon": [
+        [-32.055933, 115.744362],
+        [-32.055952, 115.74437],
+        [-32.055993, 115.744389],
+        [-32.056102, 115.744034],
+        [-32.056044, 115.744011]
+      ],
+      "confidence": "medium",
+      "note": "Unnamed on the official map (listed as ND38). Southern (29–31 Henry St) portion of the terrace footprint way/164418327, split from ND21 along the wall shown on the official map (wall position estimated from the drawing).",
       "contents": ["Classroom", "Physiotherapy laboratory"]
     },
     {
       "ref": "ND39",
       "name": "Celia Hammond Student Support Centre",
       "address": "45 Henry Street",
-      "osm": null,
-      "point": [-32.05637, 115.7445],
+      "osm": "way/164418329",
+      "polygon": [
+        [-32.056251, 115.7445],
+        [-32.056407, 115.744565],
+        [-32.056448, 115.744441],
+        [-32.05629, 115.744371]
+      ],
       "confidence": "medium",
-      "note": "Henry Street end of the strip south of the library whose OSM footprint is matched to ND16.",
+      "note": "Eastern (45 Henry St) portion of way/164418329, split from ND16 at the setback in the OSM outline.",
       "contents": ["Student Life", "Library staff (level 2)"]
     },
     {
@@ -427,10 +465,20 @@
       "ref": "ND49",
       "name": "Staff & Student Gym",
       "address": "41 Phillimore Street (Customs House)",
-      "osm": null,
-      "point": [-32.05445, 115.74403],
+      "osm": "way/142222969",
+      "polygon": [
+        [-32.054153, 115.743748],
+        [-32.054199, 115.743768],
+        [-32.054581, 115.743931],
+        [-32.054485, 115.744243],
+        [-32.05416, 115.7441],
+        [-32.054149, 115.744122],
+        [-32.054131, 115.744135],
+        [-32.054101, 115.744132],
+        [-32.054057, 115.744112]
+      ],
       "confidence": "medium",
-      "note": "Southern part of the Customs House complex (ND49–50 share 41 Phillimore St); the complex footprint is matched to ND50.",
+      "note": "Southern half of the Customs House complex footprint way/142222969 (ND49–50 share 41 Phillimore St), split from ND50 per the official map.",
       "contents": [
         "Health Sciences Reception",
         "Student & staff gymnasium",
@@ -442,8 +490,20 @@
       "name": "Wellbeing Centre & School of Nursing & Midwifery",
       "address": "2 Henry Street / 41 Phillimore Street (Customs House)",
       "osm": "way/142222969",
+      "polygon": [
+        [-32.053816, 115.74402],
+        [-32.053626, 115.743942],
+        [-32.053874, 115.743712],
+        [-32.053912, 115.743691],
+        [-32.053947, 115.743683],
+        [-32.054005, 115.743691],
+        [-32.054065, 115.743709],
+        [-32.054153, 115.743748],
+        [-32.054057, 115.744112],
+        [-32.054009, 115.74409]
+      ],
       "confidence": "medium",
-      "note": "The Customs House complex at the corner of Phillimore & Henry Streets (the university lists the Wellbeing Centre as 'ND50, Customs House, 2 Henry Street'). Previously mis-matched to the Robert Harper Building at 49 Phillimore St, which is not a university building.",
+      "note": "Northern (Phillimore-side) half of the Customs House complex footprint way/142222969 at the corner of Phillimore & Henry Streets (the university lists the Wellbeing Centre as 'ND50, Customs House, 2 Henry Street'). The official map also draws ND50 spanning east over 45–49 Phillimore St; the ND50/ND49 wall is estimated from the drawing.",
       "contents": [
         "Wellbeing Centre",
         "Access & Inclusion",

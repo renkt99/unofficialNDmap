@@ -510,7 +510,7 @@ Every `open` entry is written to be handed off as-is by its ID:
 
 - **Status:** open · **Severity:** med · **Date:** 2026-07-21
 - **Location:** `data/nd-buildings.json` (entries with `"confidence": "low"`:
-  ND9, ND10, ND11, ND34, ND38)
+  ND9, ND10, ND11)
 - **Problem:** These ND references could not be confidently matched to an OSM
   footprint during curation. Users may be directed to the wrong building.
 - **Progress (2026-07-23):** Desk-verified the whole dataset after a user
@@ -526,9 +526,15 @@ Every `open` entry is written to be handed off as-is by its ID:
   ND15 inside the library) and added ND10 (on the official map but not its
   legend). Severity downgraded: remaining low entries are point-precision
   within the correct courtyard pocket, not wrong-building errors.
-- **Goal:** Walk the campus and confirm the five remaining low-confidence
-  point markers (ND9, ND10, ND11, ND34, ND38), then raise `confidence`.
-  Rebuild with `node scripts/build-geojson.mjs`.
+  Follow-up (same date, user feedback): shared footprints are now split
+  along the official map's interior walls via the new curated `polygon`
+  field — ND21|ND38, ND16|ND39, ND34|ND14, ND50|ND49 each have their own
+  polygon (wall positions estimated from the map drawing where the OSM
+  outline gives no cue). ND34/ND38 raised to medium.
+- **Goal:** Walk the campus and confirm the three remaining low-confidence
+  point markers (ND9, ND10, ND11 — candidates for hand-drawn `polygon`
+  subdivisions of the ND13 footprint), and check the four estimated
+  interior-wall positions. Rebuild with `node scripts/build-geojson.mjs`.
 - **Done when:** No entry in nd-buildings.json carries `"confidence": "low"`;
   `node scripts/validate-data.mjs` passes; spot-checked on the deployed map.
 
