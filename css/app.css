@@ -332,13 +332,6 @@ body {
   transform: translateY(0);
 }
 
-#panel-backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 1250;
-  background: rgba(0, 44, 97, 0.25);
-}
-
 /* Must match DESKTOP_MIN_WIDTH in js/app.js and js/search.js. */
 @media (min-width: 768px) {
   #detail-panel {
@@ -355,13 +348,6 @@ body {
 
   #detail-panel.open {
     transform: translateX(0);
-  }
-
-  /* Desktop: side panel needs no click-blocking backdrop — the map stays
-     interactive and map clicks close the panel via the map click handler. */
-  #panel-backdrop {
-    background: transparent;
-    pointer-events: none;
   }
 }
 
@@ -568,10 +554,9 @@ body {
 /* Attribution (bottomleft, see js/app.js) — a licence requirement, so it
    needs the same safe-area handling as other bottom-anchored elements
    (#toast, #locate-btn), plus:
-   - a z-index above the mobile bottom sheet (#detail-panel, 1300) /
-     backdrop (#panel-backdrop, 1250) so it stays visible (composited over
-     the sheet) when it's open, since the sheet is full-width and there's no
-     bottom corner that escapes it;
+   - a z-index above the mobile bottom sheet (#detail-panel, 1300) so it
+     stays visible (composited over the sheet) when it's open, since the
+     sheet is full-width and there's no bottom corner that escapes it;
    - on desktop, a fixed left margin clearing the 320px side panel — applied
      unconditionally (not just while the panel is open) so it doesn't need
      to track panel open/close state via JS.
