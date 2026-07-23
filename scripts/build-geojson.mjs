@@ -217,6 +217,8 @@ function main() {
       kind: b.kind ?? 'building',
     };
     if (b.note) props.note = b.note;
+    // Official map's dark-navy "Key buildings" tier (styled in js/app.js).
+    if (b.key) props.key = true;
 
     let geometry;
     if (b.polygon) {
