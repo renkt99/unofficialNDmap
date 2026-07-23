@@ -17,16 +17,27 @@
   --text-muted: #6b7280;
   --border: #e2e6ec;
   --shadow: 0 2px 10px rgba(0, 44, 97, 0.18);
+  /* Floating map chrome (search bar + results, locate button, info control)
+     sits directly on the map surface, which keeps the light cream PDF look
+     in BOTH themes — so these stay light in both themes too. Following the
+     dark palette made them near-invisible: navy icons on --panel-bg #17233b
+     is ~1.1:1 contrast. Deliberately not overridden in the dark block. */
+  --control-bg: #ffffff;
+  --control-text: #1a2433;
+  --control-muted: #6b7280;
+  --control-border: #e2e6ec;
+  --control-hover: #f5f7fa;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
 }
 
-/* Dark mode only changes the surrounding UI chrome (panels, search, toast).
-   The map surface (tile filter + --cream/--navy/--accent-blue) intentionally
-   stays the light cream PDF look in both themes — see .leaflet-tile-pane
-   below. */
+/* Dark mode only changes the larger UI surfaces (detail panel, info modal,
+   toast). The map surface (tile filter + --cream/--navy/--accent-blue)
+   intentionally stays the light cream PDF look in both themes — see
+   .leaflet-tile-pane below — and the floating controls on top of it stay
+   light with it via the --control-* variables above. */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0f172a;
@@ -181,13 +192,17 @@ body {
 #search-input {
   width: 100%;
   padding: 11px 14px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: 10px;
-  background: var(--panel-bg);
-  color: var(--text);
+  background: var(--control-bg);
+  color: var(--control-text);
   font-size: 15px;
   box-shadow: var(--shadow);
   outline: none;
+}
+
+#search-input::placeholder {
+  color: var(--control-muted);
 }
 
 #search-input:focus {
@@ -196,7 +211,7 @@ body {
 
 #search-results {
   margin-top: 6px;
-  background: var(--panel-bg);
+  background: var(--control-bg);
   border-radius: 10px;
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -207,7 +222,7 @@ body {
 .search-result {
   padding: 8px 14px;
   cursor: pointer;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--control-border);
 }
 
 .search-result:last-child {
@@ -217,18 +232,18 @@ body {
 .search-result:hover,
 .search-result:active,
 .search-result.active {
-  background: var(--bg);
+  background: var(--control-hover);
 }
 
 .result-primary {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--control-text);
 }
 
 .result-secondary {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--control-muted);
   margin-top: 1px;
 }
 
@@ -364,7 +379,7 @@ body {
   height: 40px;
   border-radius: 50%;
   border: none;
-  background: var(--panel-bg);
+  background: var(--control-bg);
   color: var(--navy);
   box-shadow: var(--shadow);
   display: flex;
@@ -470,7 +485,7 @@ body {
   text-align: center;
   font-size: 18px;
   font-weight: 700;
-  background: var(--panel-bg);
+  background: var(--control-bg);
   color: var(--navy);
   text-decoration: none;
   display: block;
@@ -580,10 +595,27 @@ body {
    above can rely on being spatially clear of it. While the sheet is open,
    lift the attribution above it instead — :has() lets this react purely in
    CSS to the sheet's .open class (added/removed by js/panel.js) with no
-   extra JS coupling needed. Must match #detail-panel's 45% height. */
+   extra JS coupling needed.
+   The lift moves the whole Leaflet corner container to bottom: 45% — the
+   container and the sheet resolve their percentages against the same
+   viewport-sized box, so this lands exactly on the sheet's top edge (must
+   match #detail-panel's 45% height). The earlier margin-bottom: 45vh
+   approach overshot on real phones: 45vh (large-viewport units) exceeds
+   45% of the toolbar-shrunk layout viewport, and the base rule's
+   safe-bottom padding stacked on top, leaving a visible strip of map
+   between the credit and the sheet. The sheet also covers the safe area,
+   so the safe-bottom margin is dropped while it's open. */
 @media (max-width: 767px) {
+  .leaflet-bottom.leaflet-left {
+    transition: bottom 0.22s ease; /* match #detail-panel's slide */
+  }
+
+  body:has(#detail-panel.open) .leaflet-bottom.leaflet-left {
+    bottom: 45%;
+  }
+
   body:has(#detail-panel.open) .leaflet-control-attribution {
-    margin-bottom: calc(45vh + 14px + var(--safe-bottom)) !important;
+    margin-bottom: 2px !important;
   }
 }
 
@@ -595,7 +627,8 @@ body {
   .gps-dot-pulse {
     animation: none;
   }
-  #detail-panel {
+  #detail-panel,
+  .leaflet-bottom.leaflet-left {
     transition: none;
   }
 }
