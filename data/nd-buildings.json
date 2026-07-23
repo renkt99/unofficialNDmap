@@ -1,5 +1,5 @@
 {
-  "_comment": "Source of truth for ND building data. Hand-curated. 'osm' is the OpenStreetMap element (in data/footprints-raw.json) providing the footprint polygon; 'polygon' is a hand-drawn ring of [lat,lng] vertices used where one OSM footprint covers several ND numbers and the official map's interior walls split it ('osm' then names the parent footprint, kept so it stays excluded from the context layer); 'point' [lat,lng] is used when no footprint could be confidently matched. 'contents' transcribed from the official Fremantle Campus Map (November 2025 edition, reference/fremantle-campus-map-2025-11.pdf; ND6572). Where the official legend leaves a building unnamed (e.g. ND13, ND33), 'name' uses its most prominent occupant or historic building name, with a note. 'confidence' reflects how sure the ND-number-to-footprint match is; low-confidence entries need on-the-ground verification.",
+  "_comment": "Source of truth for ND building data. Hand-curated. 'osm' is the OpenStreetMap element (in data/footprints-raw.json) providing the footprint polygon; 'polygon' is a hand-drawn ring of [lat,lng] vertices used where one OSM footprint covers several ND numbers and the official map's interior walls split it ('osm' then names the parent footprint, kept so it stays excluded from the context layer); 'point' [lat,lng] is used when no footprint could be confidently matched. 'contents' transcribed from the official Fremantle Campus Map (November 2025 edition, reference/fremantle-campus-map-2025-11.pdf; ND6572). Where the official legend leaves a building unnamed (e.g. ND13, ND33), 'name' uses its most prominent occupant or historic building name, with a note. 'key': true marks the dark-navy 'Key buildings' tier of the official map's legend (all others render as mid-blue University buildings; kind 'courtyard' as the pale courtyard fill). 'confidence' reflects how sure the ND-number-to-footprint match is; low-confidence entries need on-the-ground verification.",
   "buildings": [
     {
       "ref": "ND1",
@@ -7,6 +7,7 @@
       "address": "17–19 Mouat Street",
       "osm": "way/122218677",
       "confidence": "high",
+      "key": true,
       "contents": [
         "Foley Hall",
         "Santa Maria Lecture Theatre",
@@ -31,6 +32,7 @@
       "address": "25 Mouat Street",
       "osm": "way/122218678",
       "confidence": "high",
+      "key": true,
       "note": "OSM names this footprint Bateman's Warehouse; position matches the official map (grid D3).",
       "contents": [
         "Performing Arts Centre",
@@ -44,6 +46,7 @@
       "address": "Corner Cliff & Croke Streets",
       "osm": "way/163682359",
       "confidence": "high",
+      "key": true,
       "contents": ["Classrooms & lecture theatre"]
     },
     {
@@ -60,6 +63,7 @@
       "address": "32 Mouat Street",
       "osm": "way/1051032222",
       "confidence": "high",
+      "key": true,
       "contents": [
         "Parent room",
         "Student study and collaboration",
@@ -78,6 +82,7 @@
         [-32.056647, 115.743854]
       ],
       "confidence": "medium",
+      "key": true,
       "note": "Northern slice of the Mouat Street arm of way/164418330 (38 Mouat St); the Bateman Courtyard walkway passes between it and ND7. Interior walls estimated from the official map drawing.",
       "contents": ["Holy Spirit Chapel"]
     },
@@ -212,6 +217,7 @@
       "address": "Mouat Street",
       "osm": "way/164418324",
       "confidence": "high",
+      "key": true,
       "note": "Formerly St Teresa's Library.",
       "contents": ["Library"]
     },
@@ -261,6 +267,7 @@
       "address": "9–23 High Street (Owston's Buildings)",
       "osm": "way/79622209",
       "confidence": "high",
+      "key": true,
       "contents": [
         "Mail room",
         "Advancement Unit",
@@ -284,6 +291,7 @@
       "address": "Mouat Street (between Croke Street & Marine Terrace)",
       "osm": "way/1050973994",
       "confidence": "medium",
+      "key": true,
       "contents": ["Ceremonial, lecture, exams & conference hall"]
     },
     {

@@ -110,20 +110,25 @@
 
   // ---- Building styling ----------------------------------------------
 
-  // Brand colors — must match --navy (#002c61) and --navy-mid / --accent-blue
-  // (#005cab) in css/app.css. Kept as JS constants rather than read from CSS
-  // custom properties because Leaflet vector layer styles need plain color
-  // strings, not var() references.
+  // COLOR_NAVY must match --navy (#002c61) in css/app.css. The three fill
+  // tiers are sampled from the official campus map PDF
+  // (reference/fremantle-campus-map-2025-11.pdf legend): dark navy "Key
+  // buildings" (entries with "key": true in nd-buildings.json), mid-blue
+  // "University buildings", pale "Courtyards". Kept as JS constants rather
+  // than read from CSS custom properties because Leaflet vector layer
+  // styles need plain color strings, not var() references.
   var COLOR_NAVY = '#002c61';
-  var COLOR_UNI_BLUE = '#005cab';
+  var COLOR_FILL_KEY = '#25408f';
+  var COLOR_FILL_UNI = '#69b3e3';
+  var COLOR_FILL_COURTYARD = '#d7e7f6';
 
   function baseStyle(feature) {
     if (feature.properties.kind === 'courtyard') {
       return {
-        color: COLOR_UNI_BLUE,
+        color: COLOR_FILL_UNI,
         weight: 1,
         opacity: 1,
-        fillColor: '#69b3e3',
+        fillColor: COLOR_FILL_COURTYARD,
         fillOpacity: 0.9
       };
     }
@@ -131,7 +136,7 @@
       color: COLOR_NAVY,
       weight: 1,
       opacity: 1,
-      fillColor: COLOR_UNI_BLUE,
+      fillColor: feature.properties.key ? COLOR_FILL_KEY : COLOR_FILL_UNI,
       fillOpacity: 0.92
     };
   }

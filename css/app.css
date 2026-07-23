@@ -1,9 +1,11 @@
 /* unofficialNDmap — app styling */
 
 :root {
-  /* --navy and --navy-mid/--accent-blue are mirrored as the COLOR_NAVY /
-     COLOR_UNI_BLUE constants in js/app.js (Leaflet vector styles need plain
-     color strings, not custom properties) — keep both copies in sync. */
+  /* --navy is mirrored as the COLOR_NAVY constant in js/app.js (Leaflet
+     vector styles need plain color strings, not custom properties) — keep
+     both copies in sync. The map's building fills (COLOR_FILL_* in
+     js/app.js) are sampled from the official campus map PDF, not from this
+     palette. */
   --navy: #002c61;
   --navy-mid: #005cab;
   --navy-soft: #3d5a7a;
@@ -92,7 +94,7 @@ body {
 /* ---------------------------------------------------------------- */
 
 /* Solid chip background rather than white-text-on-fill: white text over the
-   light courtyard fill (#69b3e3, js/app.js baseStyle) computed to ~2.29:1,
+   mid-blue building fill (#69b3e3, js/app.js baseStyle) computed to ~2.29:1,
    well under WCAG AA's 4.5:1 for 11px text — the text-shadow halo alone
    wasn't a guaranteed-contrast mechanism. An opaque chip makes contrast
    fill-independent everywhere (courtyards, beige context buildings, blue
