@@ -127,6 +127,36 @@ body {
 }
 
 /* ---------------------------------------------------------------- */
+/* Entrance arrows                                                   */
+/* ---------------------------------------------------------------- */
+
+/* Small white triangle markers at building entrances (js/app.js, driven by
+   feature.properties.entrances baked in by scripts/build-geojson.mjs). */
+.entrance-icon-wrap {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entrance-arrow {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 9px solid #fff;
+  filter: drop-shadow(0 0 1px rgba(31, 45, 60, 0.9));
+}
+
+/* js/app.js toggles this on the map container at the same LABEL_MIN_ZOOM
+   (17) threshold as .hide-building-labels, so entrance arrows disappear
+   alongside the ref pills at low zoom. */
+.hide-entrances .entrance-icon-wrap {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- */
 /* Search box                                                        */
 /* ---------------------------------------------------------------- */
 
