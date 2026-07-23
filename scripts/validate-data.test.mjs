@@ -34,7 +34,6 @@ const badCases = [
   ['out-of-bounds', /outside campus bounds/],
   ['duplicate-ref', /appears 2 times in buildings\.geojson \(expected 1\)/],
   ['missing-field', /missing name/],
-  ['bad-poi-kind', /bad kind "cafe"/],
   ['unclosed-ring', /not closed \(first coord != last coord\)/],
 ];
 

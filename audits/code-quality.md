@@ -64,13 +64,10 @@ the Node scripts, with no single source of truth and no gate that would catch dr
 
 ## Error handling
 
-- [ ] `js/app.js` handles the two `fetch()` failures inconsistently in both log severity and
-      user feedback: `buildingsPromise`'s catch (line 199-202) uses `console.error` and silently
-      resolves to `null` — buildings are the core feature, but a failed load produces zero
-      user-visible feedback, unlike `js/locate.js`'s `showToast()` mechanism which exists but
-      isn't reused here. `poisPromise`'s catch (line 209-212) uses `console.warn`, which is the
-      right severity for a non-critical layer, but the asymmetry is undocumented as intentional
-      (a reader has to infer "error = critical path, warn = optional" from context).
+- [ ] `js/app.js`'s `buildingsPromise` fetch failure (`console.error`, resolves to `null`) —
+      buildings are the core feature, but a failed load produces zero user-visible feedback
+      beyond the console, unlike `js/locate.js`'s `showToast()` mechanism which exists but
+      isn't reused here.
 - [ ] `scripts/build-geojson.mjs` throws bare `Error` objects with no error codes/categories
       (e.g. lines 33, 55, 61) that crash the whole script with a stack trace; combined with no
       `try/catch` at the call site, a single malformed `nd-buildings.json` entry aborts the

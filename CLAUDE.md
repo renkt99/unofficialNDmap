@@ -12,15 +12,15 @@ https://renkt99.github.io/unofficialNDmap/, served under the
   files are deliberately ES5 `var`-only (shipped unbundled, no build step) —
   do not modernize them; `scripts/*.mjs` are modern Node ESM.
 - Data: `data/nd-buildings.json` is the hand-curated source of truth; never
-  edit `data/buildings.geojson` / `data/pois.geojson` / `data/context-buildings.geojson` directly — regenerate
+  edit `data/buildings.geojson` / `data/context-buildings.geojson` directly — regenerate
   with `node scripts/build-geojson.mjs` and check with
   `node scripts/validate-data.mjs`. CI (`.github/workflows/ci.yml`) gates
   every PR: it fails on stale committed geojson, runs the validator, and runs
   `node --test "scripts/**/*.test.mjs"`; branch protection on `main` requires
   the `validate` check.
 - The campus bounds live in `scripts/bounds.mjs` (`BOUNDS`), imported by both
-  `scripts/validate-data.mjs` and the POI filter in `scripts/build-geojson.mjs`,
-  plus the `CAMPUS_BOUNDS` literal in `js/app.js` (which must be kept in sync
+  `scripts/validate-data.mjs` and `scripts/build-geojson.mjs` (context-buildings
+  bounds filter), plus the `CAMPUS_BOUNDS` literal in `js/app.js` (which must be kept in sync
   by hand — that file has no bundler and can't import `bounds.mjs`) — change
   `bounds.mjs` and `js/app.js` together, never one without the other.
   `scripts/fetch-footprints.mjs` intentionally queries a wider bbox for its

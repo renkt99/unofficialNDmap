@@ -31,11 +31,6 @@ top match, via Enter. Findings from sweeps of this checklist go in
       `.leaflet-control-attribution`, so it relies entirely on Leaflet's
       default small/low-contrast text, and it sits close to the safe-area
       inset zone.
-- [ ] Check POI badge glyphs (`🚌`/`🚲`/`P`, `.poi-badge` in `css/app.css`,
-      24x24px) render consistently and stay legible across iOS/Android emoji
-      sets at that size, and against both the current light basemap and any
-      future dark tile variant (see Dark mode below).
-
 ## Search
 
 - [ ] `#search-input` (`index.html`) has a `placeholder` but no `<label>`,
@@ -117,7 +112,7 @@ top match, via Enter. Findings from sweeps of this checklist go in
       any future animated affordances; add a blanket rule that disables/shortens
       transitions and animations when the user has motion reduction enabled.
 - [ ] No service worker or offline caching is registered anywhere in
-      `index.html`/`js/` — tiles and `data/buildings.geojson`/`data/pois.geojson`
+      `index.html`/`js/` — tiles and `data/buildings.geojson`
       (fetched in `js/app.js`) go blank with no cached fallback in the campus's
       likely signal dead spots (thick-walled buildings, basements). Note as a
       candidate resilience feature rather than a blocking defect.
