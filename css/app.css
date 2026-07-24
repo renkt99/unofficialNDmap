@@ -130,7 +130,7 @@ body {
 /* Entrance arrows                                                   */
 /* ---------------------------------------------------------------- */
 
-/* Small white triangle markers at building entrances (js/app.js, driven by
+/* Small white arrow markers at building entrances (js/app.js, driven by
    feature.properties.entrances baked in by scripts/build-geojson.mjs). */
 .entrance-icon-wrap {
   background: none;
@@ -138,15 +138,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* The outline lives here, not on .entrance-arrow: a drop-shadow on the
+     clip-path'ed element itself would be clipped away with the rest of
+     the box. */
+  filter: drop-shadow(0 0 1px rgba(31, 45, 60, 0.9));
 }
 
+/* Dart/arrowhead pointing up before rotation — the notched tail makes the
+   pointing direction legible at small sizes where a plain triangle reads
+   as an equilateral blob. */
 .entrance-arrow {
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 9px solid #fff;
-  filter: drop-shadow(0 0 1px rgba(31, 45, 60, 0.9));
+  width: 10px;
+  height: 12px;
+  background: #fff;
+  clip-path: polygon(50% 0%, 92% 100%, 50% 70%, 8% 100%);
 }
 
 /* js/app.js toggles this on the map container at the same LABEL_MIN_ZOOM

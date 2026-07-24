@@ -68,7 +68,7 @@
       "osm": "way/1051032222",
       "confidence": "high",
       "key": true,
-      "entrances": [[115.7437352, -32.0563651], [115.7439843, -32.0564632]],
+      "entrances": [[115.7437352, -32.0563651], [115.7440162, -32.0564533]],
       "contents": [
         "Parent room",
         "Student study and collaboration",
@@ -105,7 +105,7 @@
       ],
       "confidence": "medium",
       "note": "Unnamed on the official map (listed as ND9). Middle slice of the Mouat Street arm of way/164418330, between the chapel (ND8) and ND10; walls estimated from the official map drawing.",
-      "entrances": [[115.743854, -32.056647]],
+      "entrances": [[115.743863, -32.0566686]],
       "contents": ["Chaplaincy", "Manjaree"]
     },
     {
@@ -151,7 +151,7 @@
       "address": "28 Marine Terrace",
       "osm": "way/144058106",
       "confidence": "high",
-      "entrances": [[115.7444096, -32.0568935], [115.7446381, -32.056977]],
+      "entrances": [[115.7444189, -32.056938], [115.7446381, -32.056977]],
       "contents": ["Port Lodge"]
     },
     {
@@ -217,7 +217,7 @@
       ],
       "confidence": "medium",
       "note": "Western strip of way/164418329, attached to the library's south side; the setback in the OSM outline marks the wall to ND39, matching the official map.",
-      "entrances": [[115.7443369, -32.0563768]],
+      "entrances": [[115.7443578, -32.0563707]],
       "contents": [
         "Student Success",
         "Indigenous Student Engagement and Success"
@@ -233,7 +233,7 @@
       "note": "Formerly St Teresa's Library.",
       "entrances": [
         [115.744448, -32.0561304],
-        [115.7439629, -32.0562889],
+        [115.7439738, -32.0563141],
         [115.7441197, -32.0563656]
       ],
       "contents": ["Library"]
@@ -270,7 +270,7 @@
       ],
       "confidence": "medium",
       "note": "Northern portion (25–29 Henry St) of the terrace footprint way/164418327, split along the ND21/ND38 interior wall shown on the official map.",
-      "entrances": [[115.744362, -32.055933]],
+      "entrances": [[115.7443463, -32.0558979]],
       "contents": ["Classrooms"]
     },
     {
@@ -289,7 +289,7 @@
       "osm": "way/79622209",
       "confidence": "high",
       "key": true,
-      "entrances": [[115.7429777, -32.0556499], [115.7428503, -32.0556898]],
+      "entrances": [[115.7430327, -32.0556335], [115.7428204, -32.0556997]],
       "contents": [
         "Mail room",
         "Advancement Unit",
@@ -305,7 +305,7 @@
       "address": "Croke Street",
       "osm": "way/50638449",
       "confidence": "medium",
-      "entrances": [[115.7435538, -32.0567931]],
+      "entrances": [[115.7435754, -32.0567864]],
       "contents": ["School of Philosophy & Theology"]
     },
     {
@@ -350,7 +350,7 @@
       "address": "Corner High & Cliff Streets (Union Bank Building)",
       "osm": "way/97787215",
       "confidence": "high",
-      "entrances": [[115.7423397, -32.055683], [115.74217, -32.0557247]],
+      "entrances": [[115.7423297, -32.055659], [115.74217, -32.0557247]],
       "contents": ["Science laboratories", "Architecture studios"]
     },
     {
@@ -406,7 +406,7 @@
       "address": "2–8 Mouat Street",
       "osm": "way/173025709",
       "confidence": "high",
-      "entrances": [[115.743063, -32.0547735]],
+      "entrances": [[115.7430738, -32.0548005]],
       "contents": [
         "Computer laboratories",
         "Classrooms",
@@ -473,7 +473,7 @@
       "address": "6 High Street",
       "osm": "way/122218684",
       "confidence": "high",
-      "entrances": [[115.7424745, -32.0556517], [115.7424256, -32.0555606]],
+      "entrances": [[115.7424745, -32.0556517], [115.7423941, -32.0554859]],
       "contents": [
         "Michael Keating Room",
         "Fairweathers Bar",
@@ -489,7 +489,7 @@
       "osm": "way/670828890",
       "confidence": "high",
       "note": "Unnamed on the official map (listed as ND43); historic building name used.",
-      "entrances": [[115.7430388, -32.0550491], [115.7429772, -32.0549051]],
+      "entrances": [[115.7430277, -32.0550232], [115.7429772, -32.0549051]],
       "contents": ["Multi-faith prayer room", "Classrooms (levels 2 & 3)"]
     },
     {
