@@ -350,7 +350,7 @@
       "address": "Corner High & Cliff Streets (Union Bank Building)",
       "osm": "way/97787215",
       "confidence": "high",
-      "entrances": [[115.7423397, -32.055683], [115.7423255, -32.0557164]],
+      "entrances": [[115.7423397, -32.055683], [115.74217, -32.0557247]],
       "contents": ["Science laboratories", "Architecture studios"]
     },
     {
@@ -581,7 +581,7 @@
       ],
       "confidence": "medium",
       "note": "Northern (Phillimore-side) half of the Customs House complex footprint way/142222969 at the corner of Phillimore & Henry Streets (the university lists the Wellbeing Centre as 'ND50, Customs House, 2 Henry Street'). The official map also draws ND50 spanning east over 45–49 Phillimore St; the ND50/ND49 wall is estimated from the drawing.",
-      "entrances": [[115.743748, -32.054153]],
+      "entrances": [[115.743735, -32.05385]],
       "contents": [
         "Wellbeing Centre",
         "Access & Inclusion",

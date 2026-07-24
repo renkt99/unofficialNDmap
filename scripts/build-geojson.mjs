@@ -56,10 +56,8 @@ function pointInRing([x, y], ring) {
 //
 // Note: if the input point sits exactly on a shared vertex between two
 // edges, the nearest edge is ambiguous (both are equidistant) and this
-// picks whichever edge is encountered first in ring order. This only
-// affects entrance points that coincide exactly with a footprint corner
-// (rare — verified against the source data, affects 2 of 47 curated
-// points) rather than sitting mid-edge like the vast majority.
+// picks whichever edge is encountered first in ring order — curated
+// entrance points should sit mid-edge, not on a footprint corner.
 export function snapEntranceToFootprint(lonLat, geometry) {
   const rings = (geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates).map((poly) => poly[0]);
   const k = Math.cos((lonLat[1] * Math.PI) / 180);

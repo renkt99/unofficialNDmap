@@ -125,8 +125,8 @@ for (const f of buildings.features) {
 errors.push(...ringClosureErrors('buildings.geojson', buildings));
 errors.push(...ringClosureErrors('context-buildings.geojson', contextBuildings));
 
-// Entrances (COR-xxx): [lon, lat, bearing] entries baked in by
-// build-geojson.mjs from nd-buildings.json's curated "entrances" points.
+// Entrances: [lon, lat, bearing] entries baked in by build-geojson.mjs
+// from nd-buildings.json's curated "entrances" points.
 const curatedEntranceCounts = new Map(
   curated.buildings.map((b) => [b.ref, b.entrances ? b.entrances.length : 0]),
 );
