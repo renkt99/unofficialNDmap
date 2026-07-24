@@ -17,7 +17,9 @@ https://renkt99.github.io/unofficialNDmap/, served under the
   `node scripts/validate-data.mjs`. CI (`.github/workflows/ci.yml`) gates
   every PR: it fails on stale committed geojson, runs the validator, and runs
   `node --test "scripts/**/*.test.mjs"`; branch protection on `main` requires
-  the `validate` check.
+  the `validate` check. `entrances` (where present) are curated `[lon,lat]`
+  points, snapped to the footprint edge and given an inward bearing at build
+  time by `build-geojson.mjs`.
 - The campus bounds live in `scripts/bounds.mjs` (`BOUNDS`), imported by both
   `scripts/validate-data.mjs` and `scripts/build-geojson.mjs` (context-buildings
   bounds filter), plus the `CAMPUS_BOUNDS` literal in `js/app.js` (which must be kept in sync

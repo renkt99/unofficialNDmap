@@ -1,5 +1,5 @@
 /*
- * app.js — map bootstrap, building layer, layers control.
+ * app.js — map bootstrap, building layer, layers control, entrance markers.
  * Exposes window.NDMap, a shared namespace used by panel.js / locate.js / search.js.
  */
 (function () {
@@ -293,6 +293,35 @@
         if (lp && tooltip) tooltip.setLatLng([lp[1], lp[0]]);
       });
 
+      // ---- Entrance arrows -------------------------------------------
+      // Small white triangle markers at each building's transcribed
+      // entrance point(s) — feature.properties.entrances = [[lon, lat,
+      // bearing], ...], baked in by scripts/build-geojson.mjs from
+      // data/nd-buildings.json's curated "entrances" points (snapped to the
+      // footprint edge, bearing = inward compass direction). Rendered
+      // directly onto the map (not the layers-control overlays) so they
+      // can't be toggled independently of the buildings themselves, and
+      // zoom-gated alongside the ref labels below.
+      var entrancesLayer = L.layerGroup().addTo(map);
+      buildingsData.features.forEach(function (feature) {
+        var entrances = feature.properties.entrances;
+        if (!entrances) return;
+        entrances.forEach(function (e) {
+          var lon = e[0];
+          var lat = e[1];
+          var bearing = e[2];
+          var icon = L.divIcon({
+            className: 'entrance-icon-wrap',
+            html:
+              '<div style="transform: rotate(' + (bearing - MAP_BEARING) + 'deg);">' +
+              '<div class="entrance-arrow"></div></div>',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7]
+          });
+          L.marker([lat, lon], { icon: icon, interactive: false }).addTo(entrancesLayer);
+        });
+      });
+
       // Zoom-gate the ref pills: at minZoom 16 all 40 labels collide into an
       // unreadable pile in the dense campus core (UX-009 screenshots), so
       // they only render from LABEL_MIN_ZOOM up. CSS does the hiding via a
@@ -303,8 +332,10 @@
         var el = map.getContainer();
         if (map.getZoom() < LABEL_MIN_ZOOM) {
           L.DomUtil.addClass(el, 'hide-building-labels');
+          L.DomUtil.addClass(el, 'hide-entrances');
         } else {
           L.DomUtil.removeClass(el, 'hide-building-labels');
+          L.DomUtil.removeClass(el, 'hide-entrances');
         }
       }
       map.on('zoomend', updateLabelVisibility);

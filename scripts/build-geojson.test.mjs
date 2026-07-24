@@ -8,7 +8,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ringFromGeometry, ringFromLatLngs, geometryFor, findOsmElement } from './build-geojson.mjs';
+import { ringFromGeometry, ringFromLatLngs, geometryFor, findOsmElement, snapEntranceToFootprint } from './build-geojson.mjs';
 
 test('ringFromGeometry: already-closed ring is unchanged', () => {
   const geometry = [
@@ -288,4 +288,56 @@ test('findOsmElement: throws with the ref and osm id when not found in the snaps
     () => findOsmElement(byId, 'way/999', 'ND1'),
     /ND1: OSM element way\/999 not found in footprints-raw\.json/,
   );
+});
+
+// ~100m square around (115.744, -32.0555): south edge at lat -32.0565 (more
+// negative/southernmost), north edge at -32.0545, west edge at lon 115.743,
+// east edge at lon 115.745.
+const squareGeometry = {
+  type: 'Polygon',
+  coordinates: [[
+    [115.743, -32.0545],
+    [115.745, -32.0545],
+    [115.745, -32.0565],
+    [115.743, -32.0565],
+    [115.743, -32.0545],
+  ]],
+};
+
+test('snapEntranceToFootprint: a point outside the south edge snaps onto it, bearing north (inward)', () => {
+  const result = snapEntranceToFootprint([115.744, -32.0566], squareGeometry);
+  assert.ok(Math.abs(result.point[1] - -32.0565) < 1e-6);
+  assert.ok(Math.abs(result.point[0] - 115.744) < 1e-6);
+  assert.equal(result.bearing, 0);
+});
+
+test('snapEntranceToFootprint: a point outside the east edge snaps onto it, bearing west (inward)', () => {
+  const result = snapEntranceToFootprint([115.7451, -32.0555], squareGeometry);
+  assert.ok(Math.abs(result.point[0] - 115.745) < 1e-6);
+  assert.ok(Math.abs(result.point[1] - -32.0555) < 1e-6);
+  assert.equal(result.bearing, 270);
+});
+
+test('snapEntranceToFootprint: MultiPolygon snaps to the correct member polygon', () => {
+  const multiGeometry = {
+    type: 'MultiPolygon',
+    coordinates: [
+      squareGeometry.coordinates,
+      [[
+        [115.753, -32.0545],
+        [115.755, -32.0545],
+        [115.755, -32.0565],
+        [115.753, -32.0565],
+        [115.753, -32.0545],
+      ]],
+    ],
+  };
+  const result = snapEntranceToFootprint([115.7549, -32.0555], multiGeometry);
+  assert.ok(Math.abs(result.point[0] - 115.755) < 1e-6);
+  assert.equal(result.bearing, 270);
+});
+
+test('snapEntranceToFootprint: the snapped point lies between the edge endpoints', () => {
+  const result = snapEntranceToFootprint([115.744, -32.0566], squareGeometry);
+  assert.ok(result.point[0] >= 115.743 && result.point[0] <= 115.745);
 });

@@ -1,5 +1,5 @@
 {
-  "_comment": "Source of truth for ND building data. Hand-curated. 'osm' is the OpenStreetMap element (in data/footprints-raw.json) providing the footprint polygon; 'polygon' is a hand-drawn ring of [lat,lng] vertices used where one OSM footprint covers several ND numbers and the official map's interior walls split it ('osm' then names the parent footprint, kept so it stays excluded from the context layer); 'point' [lat,lng] is used when no footprint could be confidently matched. 'contents' transcribed from the official Fremantle Campus Map (November 2025 edition, reference/fremantle-campus-map-2025-11.pdf; ND6572). Where the official legend leaves a building unnamed (e.g. ND13, ND33), 'name' uses its most prominent occupant or historic building name, with a note. 'key': true marks the dark-navy 'Key buildings' tier of the official map's legend (all others render as mid-blue University buildings; kind 'courtyard' as the pale courtyard fill). 'confidence' reflects how sure the ND-number-to-footprint match is; low-confidence entries need on-the-ground verification.",
+  "_comment": "Source of truth for ND building data. Hand-curated. 'osm' is the OpenStreetMap element (in data/footprints-raw.json) providing the footprint polygon; 'polygon' is a hand-drawn ring of [lat,lng] vertices used where one OSM footprint covers several ND numbers and the official map's interior walls split it ('osm' then names the parent footprint, kept so it stays excluded from the context layer); 'point' [lat,lng] is used when no footprint could be confidently matched. 'contents' transcribed from the official Fremantle Campus Map (November 2025 edition, reference/fremantle-campus-map-2025-11.pdf; ND6572). Where the official legend leaves a building unnamed (e.g. ND13, ND33), 'name' uses its most prominent occupant or historic building name, with a note. 'key': true marks the dark-navy 'Key buildings' tier of the official map's legend (all others render as mid-blue University buildings; kind 'courtyard' as the pale courtyard fill). 'confidence' reflects how sure the ND-number-to-footprint match is; low-confidence entries need on-the-ground verification. 'entrances' is an array of [lon, lat] points (official map's door locations), present only where the official map shows one for that building — build-geojson.mjs snaps each to the footprint edge and derives the inward bearing.",
   "buildings": [
     {
       "ref": "ND1",
@@ -8,6 +8,7 @@
       "osm": "way/122218677",
       "confidence": "high",
       "key": true,
+      "entrances": [[115.7434459, -32.0560112]],
       "contents": [
         "Foley Hall",
         "Santa Maria Lecture Theatre",
@@ -34,6 +35,7 @@
       "confidence": "high",
       "key": true,
       "note": "OSM names this footprint Bateman's Warehouse; position matches the official map (grid D3).",
+      "entrances": [[115.7435821, -32.0566676], [115.7436626, -32.0565106]],
       "contents": [
         "Performing Arts Centre",
         "Student Association offices",
@@ -47,6 +49,7 @@
       "osm": "way/163682359",
       "confidence": "high",
       "key": true,
+      "entrances": [[115.7431297, -32.0566664], [115.7430136, -32.0568468]],
       "contents": ["Classrooms & lecture theatre"]
     },
     {
@@ -55,6 +58,7 @@
       "address": "26 Mouat Street",
       "osm": "way/164418323",
       "confidence": "high",
+      "entrances": [[115.7435239, -32.0558794]],
       "contents": ["First Aid room", "End-of-trip facilities"]
     },
     {
@@ -64,6 +68,7 @@
       "osm": "way/1051032222",
       "confidence": "high",
       "key": true,
+      "entrances": [[115.7437352, -32.0563651], [115.7439843, -32.0564632]],
       "contents": [
         "Parent room",
         "Student study and collaboration",
@@ -84,6 +89,7 @@
       "confidence": "medium",
       "key": true,
       "note": "Northern slice of the Mouat Street arm of way/164418330 (38 Mouat St); the Bateman Courtyard walkway passes between it and ND7. Interior walls estimated from the official map drawing.",
+      "entrances": [[115.7439707, -32.0565743]],
       "contents": ["Holy Spirit Chapel"]
     },
     {
@@ -99,6 +105,7 @@
       ],
       "confidence": "medium",
       "note": "Unnamed on the official map (listed as ND9). Middle slice of the Mouat Street arm of way/164418330, between the chapel (ND8) and ND10; walls estimated from the official map drawing.",
+      "entrances": [[115.743854, -32.056647]],
       "contents": ["Chaplaincy", "Manjaree"]
     },
     {
@@ -132,6 +139,7 @@
       ],
       "confidence": "medium",
       "note": "Full-height slice of way/164418330 between the courtyard setback and ND13, per the official map; wall position estimated from the drawing.",
+      "entrances": [[115.7440692, -32.0565372]],
       "contents": [
         "Lecture rooms",
         "ND Student Law Society & the ND Business Society"
@@ -143,6 +151,7 @@
       "address": "28 Marine Terrace",
       "osm": "way/144058106",
       "confidence": "high",
+      "entrances": [[115.7444096, -32.0568935], [115.7446381, -32.056977]],
       "contents": ["Port Lodge"]
     },
     {
@@ -159,6 +168,7 @@
       ],
       "confidence": "medium",
       "note": "Unnamed on the official map (listed as ND13). Eastern portion of way/164418330 after splitting off ND8–ND11 along the official map's interior walls.",
+      "entrances": [[115.744212, -32.056496]],
       "contents": [
         "Classrooms",
         "Craven Law Centre",
@@ -180,6 +190,7 @@
       ],
       "confidence": "medium",
       "note": "Southern (Croke/Henry corner) half of way/164418322, split from ND34 per the official map.",
+      "entrances": [[115.7446866, -32.056687]],
       "contents": ["School of Law & Business"]
     },
     {
@@ -206,6 +217,7 @@
       ],
       "confidence": "medium",
       "note": "Western strip of way/164418329, attached to the library's south side; the setback in the OSM outline marks the wall to ND39, matching the official map.",
+      "entrances": [[115.7443369, -32.0563768]],
       "contents": [
         "Student Success",
         "Indigenous Student Engagement and Success"
@@ -219,6 +231,11 @@
       "confidence": "high",
       "key": true,
       "note": "Formerly St Teresa's Library.",
+      "entrances": [
+        [115.744448, -32.0561304],
+        [115.7439629, -32.0562889],
+        [115.7441197, -32.0563656]
+      ],
       "contents": ["Library"]
     },
     {
@@ -227,6 +244,7 @@
       "address": "21 Henry Street",
       "osm": "way/164418326",
       "confidence": "medium",
+      "entrances": [[115.7442761, -32.0557406]],
       "contents": ["School of Medicine"]
     },
     {
@@ -235,6 +253,7 @@
       "address": "16 High Street",
       "osm": "way/122218689",
       "confidence": "high",
+      "entrances": [[115.74293, -32.0555189]],
       "contents": ["Psychology consult suites", "Paramedicine"]
     },
     {
@@ -251,6 +270,7 @@
       ],
       "confidence": "medium",
       "note": "Northern portion (25–29 Henry St) of the terrace footprint way/164418327, split along the ND21/ND38 interior wall shown on the official map.",
+      "entrances": [[115.744362, -32.055933]],
       "contents": ["Classrooms"]
     },
     {
@@ -259,6 +279,7 @@
       "address": "Corner Mouat Street & Marine Terrace",
       "osm": "way/122218675",
       "confidence": "high",
+      "entrances": [[115.7437831, -32.0572247]],
       "contents": ["Drill Hall Courtyard"]
     },
     {
@@ -268,6 +289,7 @@
       "osm": "way/79622209",
       "confidence": "high",
       "key": true,
+      "entrances": [[115.7429777, -32.0556499], [115.7428503, -32.0556898]],
       "contents": [
         "Mail room",
         "Advancement Unit",
@@ -283,6 +305,7 @@
       "address": "Croke Street",
       "osm": "way/50638449",
       "confidence": "medium",
+      "entrances": [[115.7435538, -32.0567931]],
       "contents": ["School of Philosophy & Theology"]
     },
     {
@@ -292,6 +315,7 @@
       "osm": "way/1050973994",
       "confidence": "medium",
       "key": true,
+      "entrances": [[115.7438229, -32.0568938]],
       "contents": ["Ceremonial, lecture, exams & conference hall"]
     },
     {
@@ -300,6 +324,7 @@
       "address": "22 High Street",
       "osm": "way/173025706",
       "confidence": "high",
+      "entrances": [[115.7432968, -32.0553356]],
       "contents": [
         "Physiotherapy gymnasium",
         "Physiotherapy laboratory",
@@ -312,6 +337,7 @@
       "address": "18–20 High Street",
       "osm": "way/1050973974",
       "confidence": "medium",
+      "entrances": [[115.7430739, -32.055335]],
       "contents": [
         "Midwifery laboratory",
         "Academic offices (level 2)",
@@ -324,6 +350,7 @@
       "address": "Corner High & Cliff Streets (Union Bank Building)",
       "osm": "way/97787215",
       "confidence": "high",
+      "entrances": [[115.7423397, -32.055683], [115.74217, -32.0557247]],
       "contents": ["Science laboratories", "Architecture studios"]
     },
     {
@@ -333,6 +360,7 @@
       "osm": "way/79622213",
       "confidence": "high",
       "note": "Unnamed on the official map (listed as ND33).",
+      "entrances": [[115.7425709, -32.0557786], [115.7425753, -32.0559017]],
       "contents": [
         "Communications laboratory",
         "Studio space",
@@ -353,6 +381,7 @@
       ],
       "confidence": "medium",
       "note": "Northern half of way/164418322, split along the ND34/ND14 wall shown on the official map (wall position estimated from the drawing).",
+      "entrances": [[115.7444211, -32.0564544]],
       "contents": ["School of Medicine"]
     },
     {
@@ -361,6 +390,7 @@
       "address": "38 Henry Street",
       "osm": "way/228773931",
       "confidence": "medium",
+      "entrances": [[115.7445589, -32.0560666]],
       "contents": [
         "Anatomy laboratory",
         "Classrooms & lecture theatre",
@@ -376,6 +406,7 @@
       "address": "2–8 Mouat Street",
       "osm": "way/173025709",
       "confidence": "high",
+      "entrances": [[115.743063, -32.0547735]],
       "contents": [
         "Computer laboratories",
         "Classrooms",
@@ -388,6 +419,7 @@
       "address": "17–19 Phillimore Street",
       "osm": "way/122218686",
       "confidence": "medium",
+      "entrances": [[115.7425239, -32.0550267]],
       "contents": [
         "Doreen McCarthy Nursing Laboratory",
         "Helen Court Nursing Laboratory",
@@ -408,6 +440,7 @@
       ],
       "confidence": "medium",
       "note": "Unnamed on the official map (listed as ND38). Southern (29–31 Henry St) portion of the terrace footprint way/164418327, split from ND21 along the wall shown on the official map (wall position estimated from the drawing).",
+      "entrances": [[115.7443795, -32.0559725]],
       "contents": ["Classroom", "Physiotherapy laboratory"]
     },
     {
@@ -431,6 +464,7 @@
       "address": "33 Phillimore Street (Frank Cadd Building)",
       "osm": "way/173025701",
       "confidence": "high",
+      "entrances": [[115.7433408, -32.0543371]],
       "contents": ["Nursing Simulation Labs"]
     },
     {
@@ -439,6 +473,7 @@
       "address": "6 High Street",
       "osm": "way/122218684",
       "confidence": "high",
+      "entrances": [[115.7424745, -32.0556517], [115.7424256, -32.0555606]],
       "contents": [
         "Michael Keating Room",
         "Fairweathers Bar",
@@ -454,6 +489,7 @@
       "osm": "way/670828890",
       "confidence": "high",
       "note": "Unnamed on the official map (listed as ND43); historic building name used.",
+      "entrances": [[115.7430388, -32.0550491], [115.7429772, -32.0549051]],
       "contents": ["Multi-faith prayer room", "Classrooms (levels 2 & 3)"]
     },
     {
@@ -462,6 +498,7 @@
       "address": "28 Mouat Street",
       "osm": "way/164418320",
       "confidence": "high",
+      "entrances": [[115.7435871, -32.0560298]],
       "contents": ["Pathways & VET"]
     },
     {
@@ -470,6 +507,7 @@
       "address": "35 Phillimore Street",
       "osm": "way/173025705",
       "confidence": "medium",
+      "entrances": [[115.7434443, -32.0543044]],
       "contents": [
         "Brian Edwards Physiotherapy Laboratory",
         "Exercise rehabilitation laboratory",
@@ -490,6 +528,7 @@
       "osm": "way/142222981",
       "confidence": "high",
       "note": "The Pakenham Street building of the Customs House site (7 Pakenham St — matches the OSM addr and the official map's grid A7). The OSM way named 'Fremantle Customs House' is the western building of the site, now matched to ND50.",
+      "entrances": [[115.7446133, -32.054268]],
       "contents": [
         "Campus Services",
         "Information Technology Office",
@@ -542,6 +581,7 @@
       ],
       "confidence": "medium",
       "note": "Northern (Phillimore-side) half of the Customs House complex footprint way/142222969 at the corner of Phillimore & Henry Streets (the university lists the Wellbeing Centre as 'ND50, Customs House, 2 Henry Street'). The official map also draws ND50 spanning east over 45–49 Phillimore St; the ND50/ND49 wall is estimated from the drawing.",
+      "entrances": [[115.743735, -32.05385]],
       "contents": [
         "Wellbeing Centre",
         "Access & Inclusion",

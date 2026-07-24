@@ -10,6 +10,7 @@ This is an unofficial project, not affiliated with or endorsed by the University
 
 - **Live GPS "blue dot"** — shows your current location on the map
 - **All ND building numbers and names** with their contents, sourced from the official campus map PDF
+- **Entrance arrows** — building entrances transcribed from the official campus map PDF
 - **Search functionality** — find by building number, name, or room/facility
 - **Building detail panel** — tap a building to see full details
 - **Map locked to the campus area** — navigation constrained to Fremantle West End
@@ -47,7 +48,7 @@ The data workflow consists of three scripts (requires **Node 22+**; CI is the re
 
 - **Building footprints** © OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright)
 - **Basemap tiles** by CARTO (Positron), © OpenStreetMap contributors © CARTO
-- **Building references and contents** transcribed from the official Fremantle Campus Map PDF (November 2025 edition, archived in `reference/` alongside the superseded Sept 2015 edition)
+- **Building references, contents, and entrance locations** transcribed from the official Fremantle Campus Map PDF (November 2025 edition, archived in `reference/` alongside the superseded Sept 2015 edition)
 - **Address cross-references** from freotopia.org
 - **Leaflet 1.9.4** (BSD-2) and **leaflet-rotate 0.2.8** (GPL-3.0) vendored in `vendor/`
 - **This project's own code** (HTML/CSS/JS) is licensed under the **GPL-3.0** — see [LICENSE](LICENSE). (GPL-3.0 was chosen because the vendored leaflet-rotate is GPL-3.0, which governs the combined work as distributed.)

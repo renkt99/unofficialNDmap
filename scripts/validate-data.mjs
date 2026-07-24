@@ -125,6 +125,31 @@ for (const f of buildings.features) {
 errors.push(...ringClosureErrors('buildings.geojson', buildings));
 errors.push(...ringClosureErrors('context-buildings.geojson', contextBuildings));
 
+// Entrances: [lon, lat, bearing] entries baked in by build-geojson.mjs
+// from nd-buildings.json's curated "entrances" points.
+const curatedEntranceCounts = new Map(
+  curated.buildings.map((b) => [b.ref, b.entrances ? b.entrances.length : 0]),
+);
+for (const f of buildings.features) {
+  const p = f.properties;
+  const entrances = p.entrances || [];
+  entrances.forEach(([lon, lat, bearing], i) => {
+    if (lat < BOUNDS.south || lat > BOUNDS.north || lon < BOUNDS.west || lon > BOUNDS.east) {
+      errors.push(`${p.ref}: entrances[${i}] outside campus bounds`);
+    }
+    if (!Number.isInteger(bearing) || bearing < 0 || bearing >= 360) {
+      errors.push(`${p.ref}: entrances[${i}] has bad bearing "${bearing}" (expected integer 0-359)`);
+    }
+  });
+  const expected = curatedEntranceCounts.get(p.ref) ?? 0;
+  if (entrances.length !== expected) {
+    errors.push(`${p.ref}: buildings.geojson has ${entrances.length} entrances, expected ${expected} (from nd-buildings.json)`);
+  }
+  if (expected > 0 && f.geometry.type === 'Point') {
+    errors.push(`${p.ref}: has curated "entrances" but its geometry is a "point" (courtyards/points can't have entrances)`);
+  }
+}
+
 if (errors.length) {
   console.error(`Validation FAILED (${errors.length} errors):`);
   for (const e of errors) console.error(`  - ${e}`);
