@@ -310,10 +310,15 @@
           var lon = e[0];
           var lat = e[1];
           var bearing = e[2];
+          // leaflet-rotate keeps divIcons screen-upright and renders a
+          // compass bearing B at screen angle B + MAP_BEARING (bearing 340
+          // streets draw vertical), so the icon rotates by that sum —
+          // measured empirically via latLngToContainerPoint, do not "fix"
+          // to a minus.
           var icon = L.divIcon({
             className: 'entrance-icon-wrap',
             html:
-              '<div style="transform: rotate(' + (bearing - MAP_BEARING) + 'deg);">' +
+              '<div style="transform: rotate(' + (bearing + MAP_BEARING) + 'deg);">' +
               '<div class="entrance-arrow"></div></div>',
             iconSize: [14, 14],
             iconAnchor: [7, 7]
